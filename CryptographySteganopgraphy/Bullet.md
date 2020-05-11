@@ -10,13 +10,15 @@ Note: Be sure to encase the flag in LHC{}
 Credit: Delta#6862
 
 ## Solution
+Take a look at the string. Notice that it is made of hexadecimal characters.
+
 `9c0a81866acce1bde0ef5520a2155054`
 
-Count the number of characters in the string. We can use CyberChef. Paste the string into input and look at the `length`. 
+Count the number of characters in the string. Open up CyberChef, paste the string into input, and look at the `length`. 
 
 https://gchq.github.io/CyberChef
 
-We see there are 32 characters. This looks very similar to a hash. Let's analyze this further. Pull the **Analyze Hash** function into the recipe zone. This gives us this output:
+The length is 32 hexadecimal characters, which is equal to 16 bytes (128 bits). This looks very similar to a hash. To confirm this, pull the **Analyze Hash** function into the recipe zone. This gives us this output:
 
 ```
 Hash length: 32
@@ -33,12 +35,12 @@ Snefru
 Tiger-128
 ```
 
-One of the hash functions listed is MD5. Maybe we need to reverse this hash. A quick google search of the hash gives this result:
+One of the hash functions listed is MD5. Maybe the goal is to reverse this hash. A quick google search of the hash gives this result:
 
 https://md5.gromweb.com/?md5=9c0a81866acce1bde0ef5520a2155054
 
 
-And the website reveals the reversed string:
+This link reveals the reversed string:
 ```
 The MD5 hash:
 9c0a81866acce1bde0ef5520a2155054
