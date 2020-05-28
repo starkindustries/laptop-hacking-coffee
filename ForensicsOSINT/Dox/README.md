@@ -12,7 +12,7 @@ This is the message he keeps posting:
 (Be sure to use the LHC{flag} syntax!)
 
 ## Solution
-**Unsolved**
+** UPDATE: AlHoltz Bot is currently down.. Challenge currently unsolvable **
 
 https://twitter.com/AHoltzTheThird
 
