@@ -22,7 +22,8 @@ output: 19/3|14|3/1|3/12|20/9|3/12|19|14/1|19
 
 What if the first number is the atomic number and the second number is something else?
 ```
-K3 Si Li1 Li12 Ca9 Li12 K Si1 K
+ 19/3  | 14 |  3/1 |  3/12 | 20/9 | 3/12  | 19 | 14/1 | 19
+ K /Li | Si | Li/H | Li/Mg | Ca/F | Li/Mg | K  | Si/H | K
 ```
 **TO BE CONTINUED..**
 
