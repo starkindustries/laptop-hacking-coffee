@@ -12,6 +12,7 @@
 | [What?](./CryptographySteganography/What) | 100 |
 | [DateNight](./CryptographySteganography/DateNight) | 100 |
 | [Awww](./CryptographySteganography/Awww) | 125 |
+| [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 |
 
 ## Forensics & OSINT
 
