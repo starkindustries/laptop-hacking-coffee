@@ -7,6 +7,8 @@ This guy tricked me into giving him my friend's Snapchat password. Help!
 
 Credit: ObjectiveAct#0281
 
+[scam.pcap](./scam.pcap)
+
 ## Solution
 Open the given **scam.pcap** file in any text editor.
 

@@ -7,6 +7,8 @@ A kid I go to school with bet me I couldn't hack his program. I'm a skid who jus
 
 Note: Be sure to encase it in LHC{}
 
+[password.elf](./password.elf)
+
 ## Solution
 Download the file `password.elf` and open it up with GDB. Also set the `disassembly-flavor` and use `layout asm` mode.
 

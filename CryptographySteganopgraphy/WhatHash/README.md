@@ -12,6 +12,8 @@ Note: The contents of the file is LHC{secret_string}
 
 Credit: Delta#6862
 
+[what_hash_v3.png](what_hash_v3.png)
+
 ## Solution
 The script's `fixer` function hashes the input using MD5. Then the constants `y` and `w` are pre-pended and appended to the hashed variable `x` respectively. 
 ```

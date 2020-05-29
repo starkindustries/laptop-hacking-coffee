@@ -5,6 +5,8 @@
 ## Challenge
 11 11111 010 000 0 101 11111 100 00011 00 000 101 11111 11111 0100
 
+Don't forget to submit the flag with the LHC{} syntax
+
 ## Solution
 The title provides a big hint that the code is not binary. So what else can it be? Note the spacing that separates the characters. Also the zeros `000`, `0`, and `00` must mean something different. So what other non-binary codes use just two different symbols to convey a message? Morse code comes to mind.
 
