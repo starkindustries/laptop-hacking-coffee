@@ -12,6 +12,7 @@
 | [What?](./CryptographySteganography/What) | 100 |
 | [DateNight](./CryptographySteganography/DateNight) | 100 |
 | [Awww](./CryptographySteganography/Awww) | 125 |
+| [Invisible](./CryptographySteganography/Invisible) | 175 |
 | [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 |
 | [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 |
 
