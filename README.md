@@ -28,3 +28,4 @@
 | Challenge Name               | Points  | 
 | -----------------------------|:-------:|
 | [Strcmp](./ReverseEngineering/Strcmp) | 30 |
+| [FacebookHax](./ReverseEngineering/FacebookHax) | 50 |
