@@ -15,4 +15,6 @@ Credits: programme-zero#4997
 2005  file picture.png 
 2006  sh
 2007  dd if=SecureBackup.exe skip=10457 bs=1 count=$((58936-10457)) of=data.zlib
+
+$ dd if=SecureBackup.exe of=princess.png bs=1 skip=10416 count=48520
 ```
