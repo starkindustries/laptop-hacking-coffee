@@ -1,42 +1,32 @@
-import zlib
-import io
-import shutil
+#!/bin/python3
 
-def decompress(data):
-        try:
-            return zlib.decompress(data)
-        except zlib.error:
-            return decompress_corrupted(data)
+# Not Where You Though
 
-def decompress_corrupted():
-    f = open('data.zlib', 'rb')
-    d = zlib.decompressobj(zlib.MAX_WBITS | 32)
-    # f = io.StringIO(data.encode())
-    result_str = b''
-    buffer = f.read(1)
-    try:
-        while buffer:
-            result_str += d.decompress(buffer)
-            buffer = f.read(1)
-    except zlib.error as e:
-        print(f"Error zlib: {e}")
-        pass
-    with open('output', 'ab') as out:
-        out.write(result_str)
-    return result_str
+from PIL import Image
 
-# with open('data.zlib', 'rb') as f:
-    # dump = f.read()
-# result = decompress_corrupted()
-# print(result)
+def printPixel(x, y, pixels):
+    color = pixels[x, y]
+    print(f"[{x}, {y}]: {color}")
 
-# output_filename = "myzip_tester"
-# dir_name = "test_folder"
+# Princess Image
+image_file = 'princess.png'
+im = Image.open(image_file)
+pixels = im.load()
+imageSize = im.size
+print(f"Image size: {imageSize}")
 
-# shutil.make_archive(output_filename, 'zip', dir_name)
+data = ""
+for y in range(imageSize[1]):    
+    for x in range(imageSize[0]):
+        color = pixels[x, y]
+        # Get least significant bit (lsb)
+        data += bin(color[0])[-1]
+        data += bin(color[1])[-1]
+        data += bin(color[2])[-1]
 
-with open('_SecureBackup.exe.extracted/28D9.zlib', 'rb') as f:
-    data = f.read()
-    print(data)
-    result = zlib.decompress(data)
-    print(result)
+# Convert binary to bytes
+n = int(data, 2)
+n = n.to_bytes((n.bit_length() + 7) // 8, 'big')
+
+# Print out the bytes
+print(n.decode())
