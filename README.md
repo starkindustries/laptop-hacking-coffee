@@ -1,6 +1,10 @@
 # Laptop Hacking Coffee
 
 ## Web
+| Challenge Name               | Points  | 
+| -----------------------------|:-------:|
+| [Skid Test](./Web/SkidTest) | 20 |
+| [Fuzzy URL](./Web/FuzzyURL) | 20 |
 
 ## Miscellaneous
 
@@ -8,6 +12,8 @@
 | -----------------------------|:-------:|
 | [Hidden Password](./Miscellaneous/HiddenPassword) | 30 |
 | [Keygen](./Miscellaneous/Keygen) | 70 |
+| [Math is Hard](./Miscellaneous/MathIsHard) | 75 |
+| [Password?](./Miscellaneous/Password) | 80 |
 
 ## Cryptography/Steganography
 
@@ -40,3 +46,4 @@
 | -----------------------------|:-------:|
 | [Strcmp](./ReverseEngineering/Strcmp) | 30 |
 | [FacebookHax](./ReverseEngineering/FacebookHax) | 50 |
+| [Double Dutch](./ReverseEngineering/DoubleDutch) | 60 |
