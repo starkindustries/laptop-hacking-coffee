@@ -7,6 +7,7 @@
 | Challenge Name               | Points  | 
 | -----------------------------|:-------:|
 | [Hidden Password](./Miscellaneous/HiddenPassword) | 30 |
+| [Keygen](./Miscellaneous/Keygen) | 70 |
 
 ## Cryptography/Steganography
 
