@@ -1,5 +1,13 @@
 # Laptop Hacking Coffee
 
+## Web
+
+## Miscellaneous
+
+| Challenge Name               | Points  | 
+| -----------------------------|:-------:|
+| [Hidden Password](./Miscellaneous/HiddenPassword) | 30 |
+
 ## Cryptography/Steganography
 
 | Challenge Name               | Points  | 
@@ -15,6 +23,8 @@
 | [Invisible](./CryptographySteganography/Invisible) | 175 |
 | [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 |
 | [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 |
+
+## Pwn
 
 ## Forensics & OSINT
 

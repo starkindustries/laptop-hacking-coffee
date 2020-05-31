@@ -41,14 +41,51 @@ The Bitcoin address that RedWedge gives looks like a hash. Indeed both [gromweb]
 
 ```
 input:  never gonna give you up
-output: 344aab9758bb0d018b93739e7893fb3a
+output: 344aab9758bb0d018b93739e7893fb3a        
 ```
 
 Try to make contact with BananaHammock19 on dal.net:
 ```
-\msg BananaHammock19 test
-[08:02] *BananaHammock19* test
-[08:02] == No such nick/channel: BananaHammock19
+/msg BananaHammock19 joey
+```
+In the chat:
+```
+[19:56] <n00b42> joey
+[19:56] <BananaHammock19> Joey sent you? Well n00b42, I can't just GIVE you the answer, but I will say this: 'eajWg6oOn9d4Q' Good luck!!
+
+[19:58] == BananaHammock19 [~BananaHam@50.149.237.35.bc.googleusercontent.com]
+[19:58] ==  realname : BananaHammock19
+[19:58] ==  channels : @#LHCBotmon
+[19:58] ==  server   : halcyon.il.us.dal.net [valar dohaeris]
+[19:58] ==  idle     : 0 days 0 hours 1 minutes 41 seconds [connected: Sat May 30 19:31:42 2020]
+[19:58] == End of WHOIS
+```
+
+```
+lh qD n6 vV u9 k4 X
+xt cP z6 hH g9 w4 J
+
+lhcPn6hHu9w4X
+
+lh q^ n= vV u@ k; X
+^Z cP `/ hH g2 ]- J
+
+lhcPnhHu@]-X
+
+eajWg6oOn9d4Q
+```
+placeholder
+```
+$ hash-identifier
+ Not Found.
+--------------------------------------------------
+ HASH: eajWg6oOn9d4Q
+
+Possible Hashs:
+[+] DES(Unix)
+--------------------------------------------------
+ HASH: 
+
 ```
 
 After asking the LHC Discord if BananaHammock19 still exists, they reply:
