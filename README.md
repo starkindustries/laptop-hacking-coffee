@@ -5,6 +5,7 @@
 | -----------------------------|:-------:|
 | [Skid Test](./Web/SkidTest) | 20 |
 | [Fuzzy URL](./Web/FuzzyURL) | 20 |
+| [Meow](./Web/Meow) | 90 |
 
 ## Miscellaneous
 
