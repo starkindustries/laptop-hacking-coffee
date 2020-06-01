@@ -52,7 +52,7 @@ The entire first sentence of the song is:
 We're no strangers to love
 ```
 
-Put this in flag format this without spaces and without punctuation:
+Put this in flag format without spaces and without punctuation:
 ```
 LHC{werenostrangerstolove}
 ```
