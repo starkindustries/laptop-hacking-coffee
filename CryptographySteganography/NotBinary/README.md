@@ -29,7 +29,11 @@ Replace
 ```
 
 Then add the **From Morse Code** function. Letter delimiter should be set to space. This recipe gives the following output:
-
 ```
 M0RSEK0D3ISK00L
+```
+
+Format as flag:
+```
+LHC{M0RSEK0D3ISK00L}
 ```

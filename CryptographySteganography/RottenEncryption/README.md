@@ -49,3 +49,8 @@ Plug this into CyberChef:
 input:  13 15 14 11 5 25 2 21 19 9 14 5 19 19
 output: monkeybusiness
 ```
+
+Format as flag:
+```
+LHC{monkeybusiness}
+```

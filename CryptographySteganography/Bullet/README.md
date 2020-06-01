@@ -47,3 +47,8 @@ The MD5 hash:
 was succesfully reversed into the string:
 waytooeasy
 ```
+
+Format as flag:
+```
+LHC{waytooeasy}
+```

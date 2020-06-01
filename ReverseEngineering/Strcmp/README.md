@@ -109,3 +109,8 @@ Examine the `rdi` and `rsi` registers. Evidently, `rdi` contains the password th
 (gdb) x /s $rsi
 0x555555554964:	"n00bRE"
 ```
+
+Format as flag and submit:
+```
+LHC{n00bRE}
+```
