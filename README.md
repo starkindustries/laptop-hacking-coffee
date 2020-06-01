@@ -13,7 +13,7 @@
 | -----------------------------|:-------:|:-------:|
 | [Hidden Password](./Miscellaneous/HiddenPassword) | 30 | Solved |
 | [Keygen](./Miscellaneous/Keygen) | 70 | Solved |
-| [Math is Hard](./Miscellaneous/MathIsHard) | 75 | In Progress |
+| [Math is Hard](./Miscellaneous/MathIsHard) | 75 | Solved |
 | [Password?](./Miscellaneous/Password) | 80 | In Progress |
 
 ## Cryptography/Steganography
