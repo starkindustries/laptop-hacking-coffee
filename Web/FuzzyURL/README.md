@@ -8,9 +8,7 @@ I can't remember what directory I left my password in, can you find it?
 
 ## Solution
 
-**In progress**
-
-Try **dirb**:
+The challenge title hints at fuzzing the URL. Try **dirb** against the site:
 ```
 $ dirb http://challenges.laptophackingcoffee.org:8888
 
@@ -30,19 +28,15 @@ GENERATED WORDS: 4612
 ---- Scanning URL: http://challenges.laptophackingcoffee.org:8888/ ----
 + http://challenges.laptophackingcoffee.org:8888/index.html (CODE:200|SIZE:370)                               
 ==> DIRECTORY: http://challenges.laptophackingcoffee.org:8888/recoverpassword/                                
-                                                                                                              
----- Entering directory: http://challenges.laptophackingcoffee.org:8888/recoverpassword/ ----
-+ http://challenges.laptophackingcoffee.org:8888/recoverpassword/index.html (CODE:200|SIZE:24)
+                                          
+...
 
-(!) FATAL: Too many errors connecting to host
-    (Possible cause: COULDNT CONNECT)
-                                                                               
 -----------------
 END_TIME: Sun May 31 20:30:04 2020
 DOWNLOADED: 9029 - FOUND: 2
 ```
 
-Dirb found something:
+Success! Dirb found a webpage:
 ```
 http://challenges.laptophackingcoffee.org:8888/recoverpassword/
 ```
