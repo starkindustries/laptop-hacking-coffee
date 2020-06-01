@@ -24,10 +24,12 @@
 | [Not Binary](./CryptographySteganography/NotBinary) | 30 | Solved |
 | [Rotten Encryption](./CryptographySteganography/RottenEncryption) | 75 | Solved |
 | [What Hash?](./CryptographySteganography/WhatHash) | 75 | Solved |
+| [Chemistry](./CryptographySteganography/Chemistry) | 75 | Solved |
 | [Truck Stop Fun](./CryptographySteganography/TruckStopFun) | 75 | Solved |
 | [What?](./CryptographySteganography/What) | 100 | Solved |
 | [DateNight](./CryptographySteganography/DateNight) | 100 | Solved |
 | [Awww](./CryptographySteganography/Awww) | 125 | Solved |
+| [Air Traffic](./CryptographySteganography/AirTraffic) | 150 | In Progress |
 | [Invisible](./CryptographySteganography/Invisible) | 175 | Solved |
 | [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 | In Progress |
 | [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 | In Progress |
@@ -40,6 +42,9 @@
 | -----------------------------|:-------:|:-------:|
 | [Leaky](./ForensicsOSINT/Leaky) | 75 | Solved |
 | [Scam](./ForensicsOSINT/Scam) | 75 | Solved |
+| [Lost Passwords](./ForensicsOSINT/LostPasswords) | 100 | Not Started |
+| [Dox](./ForensicsOSINT/Dox) | 150 | Solved |
+| [Bribery](./ForensicsOSINT/Bribery) | 180 | In Progress |
 
 ## Reverse Engineering
 
