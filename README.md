@@ -29,7 +29,7 @@
 | [What?](./CryptographySteganography/What) | 100 | Solved |
 | [DateNight](./CryptographySteganography/DateNight) | 100 | Solved |
 | [Awww](./CryptographySteganography/Awww) | 125 | Solved |
-| [Air Traffic](./CryptographySteganography/AirTraffic) | 150 | In Progress |
+| [Air Traffic](./CryptographySteganography/AirTraffic) | 150 | Solved |
 | [Invisible](./CryptographySteganography/Invisible) | 175 | Solved |
 | [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 | In Progress |
 | [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 | In Progress |
