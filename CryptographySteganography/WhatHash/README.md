@@ -38,4 +38,13 @@ The remaining hash is:
 3dc183cf4b0ea0778a1819994ad6cf25
 ```
 
-Reverse search for this hash on [gromweb](https://md5.gromweb.com/?md5=3dc183cf4b0ea0778a1819994ad6cf25). Verify the hash on [CyberChef](https://gchq.github.io/CyberChef/#recipe=MD5()&input=bnVjbGVhcg).
+Reverse search for this hash on [gromweb](https://md5.gromweb.com/?md5=3dc183cf4b0ea0778a1819994ad6cf25). Verify the hash on [CyberChef](https://gchq.github.io/CyberChef/#recipe=MD5()&input=bnVjbGVhcg):
+```
+input:  nuclear
+output: 3dc183cf4b0ea0778a1819994ad6cf25
+```
+
+Format as flag:
+```
+LHC{nuclear}
+```
