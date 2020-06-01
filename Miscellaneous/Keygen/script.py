@@ -7,7 +7,7 @@ with open('keys.txt', 'r') as handle:
         args = ['./keygen.elf', key]
         try:
             result = subprocess.check_output(args).decode().strip()
-            result = int(result)
+            result = abs(int(result))
             # print(f"{key}: {result}")
             if result == 2653470883089645351:
                 print(f"Found valid key: {key}")
