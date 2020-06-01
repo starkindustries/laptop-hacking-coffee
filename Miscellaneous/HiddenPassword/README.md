@@ -17,3 +17,8 @@ Open up [text-compare](https://text-compare.com/), paste the key into the left s
 ```
 d1fFeRenT!
 ```
+
+Format as flag:
+```
+LHC{d1fFeRenT!}
+```
