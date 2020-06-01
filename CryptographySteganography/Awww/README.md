@@ -35,5 +35,10 @@ input:  6c 30 76 33 2d 79 30 75
 output: l0v3-y0u
 ```
 
+Format as flag:
+```
+LHC{l0v3-y0u}
+```
+
 [1]:./Love_You_Baby.png
 [2]:https://gchq.github.io/CyberChef/#recipe=From_Hex('Auto')&input=NmMgMzAgNzYgMzMgMmQgNzkgMzAgIDc1IA
