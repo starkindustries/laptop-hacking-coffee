@@ -88,8 +88,22 @@ Possible Hashs:
 
 ```
 
-After asking the LHC Discord if BananaHammock19 still exists, they reply:
-> It’s down with the web challenges
+Use John the Ripper
+```
+$ sudo john bribery-hash.txt --wordlist=rockyou.txt
+Using default input encoding: UTF-8
+Loaded 1 password hash (descrypt, traditional crypt(3) [DES 256/256 AVX2])
+Press 'q' or Ctrl-C to abort, almost any other key for status
+18@Fart          (?)
+1g 0:00:00:01 DONE (2020-06-02 13:41) 0.6896g/s 7998Kp/s 7998Kc/s 7998KC/s 18JoyMi1..1899901
+Use the "--show" option to display all of the cracked passwords reliably
+Session completed
+```
+
+Format as flag:
+```
+LHC{18@Fart}
+```
 
 [1]:https://md5.gromweb.com/?md5=344aab9758bb0d018b93739e7893fb3a
 [2]:https://gchq.github.io/CyberChef/#recipe=MD5()&input=bmV2ZXIgZ29ubmEgZ2l2ZSB5b3UgdXA

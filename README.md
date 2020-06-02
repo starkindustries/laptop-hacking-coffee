@@ -14,7 +14,7 @@
 | [Hidden Password](./Miscellaneous/HiddenPassword) | 30 | Solved |
 | [Keygen](./Miscellaneous/Keygen) | 70 | Solved |
 | [Math is Hard](./Miscellaneous/MathIsHard) | 75 | Solved |
-| [Password?](./Miscellaneous/Password) | 80 | In Progress |
+| [Password?](./Miscellaneous/Password) | 80 | Solved |
 
 ## Cryptography/Steganography
 
@@ -36,6 +36,10 @@
 
 ## Pwn
 
+| Challenge Name               | Points  | Status  |
+| -----------------------------|:-------:|:-------:|
+| [Chamber of Secrets](./ForensicsOSINT/ChamberOfSecrets) | 75 | Solved |
+
 ## Forensics & OSINT
 
 | Challenge Name               | Points  | Status  |
@@ -44,7 +48,7 @@
 | [Scam](./ForensicsOSINT/Scam) | 75 | Solved |
 | [Lost Passwords](./ForensicsOSINT/LostPasswords) | 100 | Not Started |
 | [Dox](./ForensicsOSINT/Dox) | 150 | Solved |
-| [Bribery](./ForensicsOSINT/Bribery) | 180 | In Progress |
+| [Bribery](./ForensicsOSINT/Bribery) | 180 | Solved |
 
 ## Reverse Engineering
 
