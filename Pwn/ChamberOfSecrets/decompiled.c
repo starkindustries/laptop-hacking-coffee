@@ -61,8 +61,8 @@ int chamberOfSecrets(void)
   x159 = 0x1a;
   printf("Enter the secret: ");
   fgets(userInput, 0x100, stdin);
-  printf("x159 %#010x\n", x159);
-  printf("xea %#010x\n", xea);
+  // printf("x159 %#010x\n", x159);
+  // printf("xea %#010x\n", xea);
   if (xea == 0xea && x1282 == 0x1282 && x7b == 0x7b && x21e == 0x21e &&
       x147a2 == 0x147a2 && x7c3 == 0x7c3 && x62 == 0x62 && x0 == 0 && x20 == 0x20 &&
       x463 == 0x463 && x20p2 == 0x20 && x62p2 == 0x62 && x345 == 0x345 && x1d == 0x1d &&
