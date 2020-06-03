@@ -38,7 +38,7 @@
 
 | Challenge Name               | Points  | Status  |
 | -----------------------------|:-------:|:-------:|
-| [Chamber of Secrets](./ForensicsOSINT/ChamberOfSecrets) | 75 | Solved |
+| [Chamber of Secrets](./Pwn/ChamberOfSecrets) | 75 | Solved |
 
 ## Forensics & OSINT
 

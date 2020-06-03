@@ -268,7 +268,6 @@ secret
 
 cat flag.txt
 LHC{y0u_expl0it3d_bu553r_0v3rfl0w!!!}
-LHC{y0u_expl0it3d_bu553r_0v3rfl0w!!!}
 ```
 
 ## Resources
