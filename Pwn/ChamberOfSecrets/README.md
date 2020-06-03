@@ -145,7 +145,7 @@ Program received signal SIGABRT, Aborted.
 Gdb detected the buffer overflow and terminated the program:
 > *** stack smashing detected ***
 
-To disable this protection recompile the program with the `-fno-stack-protector` flag. Run gdb again. Problem solved:
+To disable this protection, recompile the program with the `-fno-stack-protector` flag. Run gdb again. Problem solved:
 ```
 $ gcc -fno-stack-protector decompiled.c -o decompiled
 $ gdb decompiled
@@ -154,7 +154,7 @@ Enter the secret:
 Program received signal SIGSEGV, Segmentation fault.
 ```
 
-Set a breakpoint at the `chamberOfSecrets` function call then step into the function:
+Set a breakpoint at the `chamberOfSecrets` function call. Run with payload then step into the function:
 ```
 0x555555554b70 <main+68>    call   0x55555555484a <chamberOfSecrets>
 ...
@@ -167,7 +167,7 @@ Breakpoint 3, 0x0000555555554b70 in main ()
 0x000055555555484a in chamberOfSecrets ()
 ```
 
-Set a breakpoint at the instruction just after the `fgets` call. Then enter the payload of "A"s:
+Set a breakpoint at the instruction just after the `fgets` call. This will pause the program after the payload is read in by `fgets`, which allows further investigation of the overwritten variables.
 ```
 0x5555555548c2 <chamberOfSecrets+232>   call   0x5555555546b0 <fgets@plt>
 0x5555555548c7 <chamberOfSecrets+237>   mov    eax,DWORD PTR [rbp-0x6c]
