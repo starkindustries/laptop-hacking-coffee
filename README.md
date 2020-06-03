@@ -46,7 +46,7 @@
 | -----------------------------|:-------:|:-------:|
 | [Leaky](./ForensicsOSINT/Leaky) | 75 | Solved |
 | [Scam](./ForensicsOSINT/Scam) | 75 | Solved |
-| [Lost Passwords](./ForensicsOSINT/LostPasswords) | 100 | Not Started |
+| [Lost Passwords](./ForensicsOSINT/LostPasswords) | 100 | In Progress |
 | [Dox](./ForensicsOSINT/Dox) | 150 | Solved |
 | [Bribery](./ForensicsOSINT/Bribery) | 180 | Solved |
 
