@@ -9,11 +9,11 @@ def printPixel(x, y, pixels):
     print(f"[{x}, {y}]: {color}")
 
 # Princess Image
-image_file = 'story_vocabulary.png'
+image_file = 'story_vocabulary_subsection.png'
 im = Image.open(image_file)
 pixels = im.load()
 imageSize = im.size
-print(f"Image size: {imageSize}")
+# print(f"Image size: {imageSize}")
 
 data = ""
 for y in range(imageSize[1]):    
