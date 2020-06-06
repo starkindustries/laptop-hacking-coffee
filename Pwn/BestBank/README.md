@@ -96,3 +96,45 @@ https://stackoverflow.com/questions/10483544/stopping-at-the-first-machine-code-
 
 https://www.youtube.com/watch?v=HSlhY4Uy8SA
 
+```
+to get a good return address for the $rsp run program again, si after the ret
+and look at the $rsp address.
+```
+
+7.2 Example Debugging Session: Segmentation Fault Example
+http://www.unknownroad.com/rtfm/gdbtut/gdbsegfault.html
+
+
+
+https://stackoverflow.com/questions/10712972/what-is-the-use-of-fno-stack-protector
+
+
+```
+$ gcc -z execstack -ggdb -fno-stack-protector scanf.c -o scan
+```
+https://stackoverflow.com/questions/29272431/how-to-make-the-stack-of-a-c-program-executable
+
+```
+Enter a letter: AAAABBBBCCCCDDDD    # AAAABBBBCCCCDDDD = 41414141 42424242 43434343 44444444
+=> 0x5555555546e2 <main+56>:	mov    DWORD PTR [rbp-0x4],eax                    
+0x7fffffffde50:	0xffffdf58	0x00007fff	0x555545a0	0x00000001  # rsp (stack pointer)
+0x7fffffffde60:	0xffffdf50	0x00007fff	0x41000000	0x42414141  #      ...P  ....  A...  BAAA
+                  3 2 1 0     7 6 5 4     b a 9 8     f e d c   # little endian    ^
+                  ^                       | ^                                      letter variable
+                  buffer[0]               ^ buffer[7]                                            
+                                          letter variable (0x41 = A)
+0x7fffffffde70:	0x43424242	0x44434343	0x00444444	0x00007fff  # rbp: CBBB  DCCC  .DDD  ....
+                  3 2 1 0     7 6 5 4     b a 9 8     f e d c   # little endian
+0x7fffffffde80:	0x00000001	0x00000000	0xffffdf58	0x00007fff
+
+>>> x $rsp
+0x7fffffffde50:	0xffffdf58  # stack pointer
+>>> x $rbp
+0x7fffffffde70:	0x43424242  # base pointer. 0x43424242 = CBBB
+>>> x letter                
+0x7fffffffde6b:	0x41414141  # char letter[1];
+>>> x buffer                
+0x7fffffffde63:	0x007fffff  # char buffer[8]
+>>> x/1bx 0x7fffffffde60
+0x7fffffffde60:	0x50        # little endian
+```
