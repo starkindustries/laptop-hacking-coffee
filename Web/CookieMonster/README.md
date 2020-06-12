@@ -1,0 +1,2 @@
+what am I suppose to do for the Cookie Monster challenge? I see that it has a XSS vuln and I'm pretty sure I'm suppose to send a cookie logger to the Elite Hacker#2489 and then add his cookie to mine to get the flag-
+i'm clearly stupid as you can tell, so i have no idea how to do this or if i'm doing this correct..

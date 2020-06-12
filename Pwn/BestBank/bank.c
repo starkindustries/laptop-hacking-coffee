@@ -529,11 +529,12 @@ void deposit(void)
   int depositAmount [2];
   
   captchaResult = captcha();
-  if (captchaResult != 0) {
-    printf("How much would you like to deposit?: ");
-    __isoc99_scanf(&DAT_0804a137,depositAmount);
-    accountBalance = depositAmount[0] + accountBalance;
-    puts("Deposit successful!\n");
+  if (captchaResult != 0) {                                 // 0x0804931e  ? test   eax,eax
+    printf("How much would you like to deposit?: ");        // 0x804932c:	call   0x8049040 <printf@plt>
+    __isoc99_scanf(&DAT_0804a137,depositAmount);            // 0x08049342  ? call   0x8049080 <__isoc99_scanf@plt>
+    accountBalance = depositAmount[0] + accountBalance;     // 0x08049353  ? add    eax,edx
+                                                            // 0x08049355  ? mov    DWORD PTR [ebx+0x30],eax
+    puts("Deposit successful!\n");                          // 0x08049365  ? call   0x8049050 <puts@plt>
   }
                     // if captch == 0: invalid result; return
   return;
