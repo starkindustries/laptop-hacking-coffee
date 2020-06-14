@@ -14,15 +14,15 @@ Credit: Tux#1576
 
 ## Solution
 
-Download the [bank](bank) file and inspect it:
+### Run the Program
+
+Download the [bank](bank) file and inspect it. The `file` commands shows that the binary is a 32-bit executable and stripped of its debug symbols:
 ```
 $ file bank
 bank: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=26163dec7eb11546fe50a0db8bdae0ea79be8939, stripped
 ```
 
-The `file` commands shows that the binary is a 32-bit executable and stripped of its debug symbols.
-
-Add run permissions and run the binary. Play around with the functionality and get a feel for the program:
+Add run permissions and run the binary. Play around with the options and get a feel for the program:
 ```
 $ chmod +x bank
 $ ./bank
@@ -68,6 +68,8 @@ A few quick notes from the initial run:
 1. Entering any number besides 1-4 results in an error message: `That is not a valid choice! Try again.`
 2. Entering any non-numeric character results in an infinite loop of the same error message.
 3. The deposit and withdraw options require a **Captcha**, which is always the same: **b3sTbAnK**. Even though the captcha is only eight characters long, the function accepts input of much longer length.
+
+### Decompile with Ghidra
 
 Open the binary in Ghidra and analyze the file. In the **Symbol Tree** under **Functions**, click the `entry` function. This function just calls `__libc_start_main` with `FUN_080493dc` as a parameter.
 ```c
@@ -143,11 +145,49 @@ void withdraw(void)
 }
 ```
 
-Inspect the `captcha` function.
+Inspect the `captcha` function. The captcha command accepts a variable length input, as noted from the initial run.
+```c
+uint captcha(void)
+{
+  int result;
+  undefined4 b3sT;
+  undefined4 bAnK;
+  undefined zero;       // unused var
+  char userCaptcha [1000];
+  char *captchaImage;   // unused var
+  
+  b3sT = 0x54733362;    // 54 73 33 62 = Ts3b
+  bAnK = 0x4b6e4162;    // 4b 6e 41 62 = KnAb
+  zero = 0;
+  captchaImage = /* b3sTbAnK ASCII art */ ;
+  puts( /* b3sTbAnK ASCII art */ );
+  printf("Captcha: ");
+  __isoc99_scanf(&captchaFormat,userCaptcha);
+  result = strncmp(userCaptcha,(char *)&b3sT,8);
+  if (result != 0) {
+    puts("Incorrect!\n");
+  }
+  else {
+    puts("Correct!\n");
+  }
+  return (uint)(result == 0);
+}
+```
 
 # Stopped here
 
 ## Draft Section
+Important breakpoints:
+```
+>>> info breakpoints
+Num     Type           Disp Enb Address         What
+1       breakpoint     keep y   0x08049070      <__libc_start_main@plt>
+2       breakpoint     keep y   0x08049276      leave ; ret of captcha function 
+3       breakpoint     keep y   0x08049040      <printf@plt>
+5       breakpoint     keep y   0x08049080      <__isoc99_scanf@plt>
+8       breakpoint     keep y   0x08049208      captcha: instruction after printf
+```
+
 
 ```
 https://stackoverflow.com/questions/16376341/isoc99-scanf-and-scanf

@@ -5,7 +5,7 @@
 | -----------------------------|:-------:|:-------:|
 | [Skid Test](./Web/SkidTest) | 20 | Solved |
 | [Fuzzy URL](./Web/FuzzyURL) | 20 | Solved |
-| [Meow](./Web/Meow) | 90 | In Progress |
+| [Meow](./Web/Meow) | 90 | Solved |
 | [CUPP](./Web/CUPP) | 100 | Solved |
 
 ## Miscellaneous

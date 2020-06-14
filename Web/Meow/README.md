@@ -17,4 +17,18 @@ http://challenges.laptophackingcoffee.org:8080/docs/
 
 Version 7.0.55, Jul 18 2014	
 
+http://challenges.laptophackingcoffee.org:8080/manager/html
+
+Apache Tomcat Default Credentials
+https://github.com/netbiosX/Default-Credentials/blob/master/Apache-Tomcat-Default-Passwords.mdown
+
+```
+user:     tomcat
+password: tomcat
+```
+
+https://www.hackingarticles.in/multiple-ways-to-exploit-tomcat-manager/
+
+https://github.com/jbarcia/Web-Shells/blob/master/laudanum/jsp/cmd.war
+
 ## Resources
