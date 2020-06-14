@@ -6,7 +6,7 @@
 | [Skid Test](./Web/SkidTest) | 20 | Solved |
 | [Fuzzy URL](./Web/FuzzyURL) | 20 | Solved |
 | [Meow](./Web/Meow) | 90 | In Progress |
-| [CUPP](./Web/CUPP) | 100 | In Progress |
+| [CUPP](./Web/CUPP) | 100 | Solved |
 
 ## Miscellaneous
 
@@ -16,6 +16,7 @@
 | [Keygen](./Miscellaneous/Keygen) | 70 | Solved |
 | [Math is Hard](./Miscellaneous/MathIsHard) | 75 | Solved |
 | [Password?](./Miscellaneous/Password) | 80 | Solved |
+| [Super Simple](./Miscellaneous/SuperSimple) | 350 | In Progress |
 
 ## Cryptography/Steganography
 
@@ -40,7 +41,7 @@
 | Challenge Name               | Points  | Status  |
 | -----------------------------|:-------:|:-------:|
 | [Chamber of Secrets](./Pwn/ChamberOfSecrets) | 75 | Solved |
-| [Best Bank](./Pwn/BestBank) | 250 | Not Started |
+| [Best Bank](./Pwn/BestBank) | 250 | Solved |
 
 ## Forensics & OSINT
 
