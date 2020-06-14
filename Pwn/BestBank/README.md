@@ -14,12 +14,17 @@ Credit: Tux#1576
 
 ## Solution
 
+Download the [bank](bank) file and inspect it:
 ```
-file bank
+$ file bank
 bank: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=26163dec7eb11546fe50a0db8bdae0ea79be8939, stripped
+```
 
-chmod +x bank
+The `file` commands shows that the binary is a 32-bit executable and stripped of its debug symbols.
 
+Add run permissions and run the binary. Play around with the functionality and get a feel for the program:
+```
+$ chmod +x bank
 $ ./bank
 Welcome to the Best Bank!
 Current balance: $500
@@ -58,7 +63,91 @@ Options:
 Enter your choice: 4
 ```
 
-Open in ghidra. Go to functions
+A few quick notes from the initial run:
+
+1. Entering any number besides 1-4 results in an error message: `That is not a valid choice! Try again.`
+2. Entering any non-numeric character results in an infinite loop of the same error message.
+3. The deposit and withdraw options require a **Captcha**, which is always the same: **b3sTbAnK**. Even though the captcha is only eight characters long, the function accepts input of much longer length.
+
+Open the binary in Ghidra and analyze the file. In the **Symbol Tree** under **Functions**, click the `entry` function. This function just calls `__libc_start_main` with `FUN_080493dc` as a parameter.
+```c
+void entry(void)
+{
+  __libc_start_main(FUN_080493dc);
+  ...
+}
+```
+
+Inspect `FUN_080493dc`. This function shows the bank menu and handles user input. Rename it to `bankMenu` and rename the other variables. This is the result:
+```c
+void bankMenu(undefined1 param_1)
+{
+  int selectedOption;
+  ...
+  puts("Welcome to the Best Bank!");
+  puts("Current balance: $500\n");
+  do {
+    while( true ) {
+      while( true ) {
+        // If option != deposit then break
+        showOptions();
+        printf("Enter your choice: ");
+        __isoc99_scanf(&optionFormat, &selectedOption);
+        if (selectedOption != 2) break;
+        deposit();
+      }
+      // if selectedOption > 2: break
+      if (2 < selectedOption) break;
+      if (selectedOption == 1) {
+        withdraw();
+      }
+      else {
+LAB_080494cb:
+        puts("That is not a valid choice! Try again.\n");
+      }
+    }
+    if (selectedOption != 3) {
+      if (selectedOption == 4) {
+        exit(0);
+      }
+      goto LAB_080494cb;
+    }
+    // selectedOption = 3
+    checkBalance();
+  } while( true );
+}
+```
+
+From the `bankMenu` function, all other feature-functions get called:
+```
+showOptions()           shows the options menu
+withdraw()              option 1: [1] Withdraw
+deposit()               option 2: [2] Deposit 
+checkBalance()          option 3: [3] Check Balance
+exit(0)                 option 4: [4] Exit
+```
+
+Inspect the `deposit` and `withdraw` functions. Both features require a captcha to proceed. This is also reflected in the code. This is the `withdraw` function:
+```c
+void withdraw(void)
+{
+  uint captchaResult;
+  int withdrawAmount [2];
+  
+  captchaResult = captcha();
+  if (captchaResult != 0) {
+    printf("How much would you like to withdraw?: ");
+    ...
+  }
+  return;
+}
+```
+
+Inspect the `captcha` function.
+
+# Stopped here
+
+## Draft Section
 
 ```
 https://stackoverflow.com/questions/16376341/isoc99-scanf-and-scanf
@@ -882,3 +971,11 @@ ff9ed000-ffa0e000 rwxp 00000000 00:00 0                                  [stack]
 LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
 
 This challenge took over 7 days to complete..
+
+## Notes to Self
+
+Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020. It took nine (9) days of debugging, learning, and grinding to solve. This is my first buffer-overflow payload-to-shell exploit and I have learned a ton. 
+
+This challenge involved an incredible amount of trial-and-error. However, the solution write-up skips most of these trials and instead details the best path to get to the goal. While the solution is important, it is the journey that makes it memorable and worthwhile. In that journey, I have learned about addrses space layout randomization (ASLR), format string exploits, the global offset table (GOT), the procedure linkage table (PLT), stack canaries, and many other concepts. These concepts and others have been linked in the resources section below.
+
+## Resources
