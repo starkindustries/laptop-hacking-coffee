@@ -71,6 +71,17 @@ then if I isolate each plane I get these: red plane1, green plane1, blue plane1
 SarastroToday at 4:35 PM
 Yeah but in colors
 
+
+
+I'm still stuck on story vocab. I tried assigning them with colors like u hinted at. and then I recombined the 3 sections. I tried different "filters" where I would layer each differently. I tried isolating 2 colors/1 color, overlaying different color combinations. Wondering if this is the right direction. (tiny image attached)
+
+SarastroToday at 3:25 AM
+It's a good path. Honestly, at this point, your best attempt would just to look at it. Try seeing it, matching it, extracting it, analyzing it. So many ways you could do stuff with this without any crypto tools
+
+delta06/04/2020
+Try looking at LCD monitors and specificly color blending (not sure if thats the right term)
+
+
 ```
 
 ```

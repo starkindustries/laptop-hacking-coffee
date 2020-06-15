@@ -8,7 +8,6 @@ def printPixel(x, y, pixels):
     color = pixels[x, y]
     print(f"[{x}, {y}]: {color}")
 
-# Princess Image
 image_file = 'story_vocabulary_subsection.png'
 im = Image.open(image_file)
 pixels = im.load()
@@ -16,16 +15,21 @@ imageSize = im.size
 # print(f"Image size: {imageSize}")
 
 data = ""
-for y in range(imageSize[1]):    
-    for x in range(imageSize[0]):
+for x in range(0, imageSize[0], 2):
+    for y in range(imageSize[1]):
         color = pixels[x, y]
+        print(f"[{x},{y}]: {color}")
         # Get the 2nd to last significant bit
-        for rgb in range(3):
+        for rgb in range(3):            
             # if color is 1 (0b1) or 0 (0b0) the [-2] will grab the 'b' which is a problem
             if color[rgb] < 2:
                 data += "0"
             else:
                 data += bin(color[rgb])[-2]
+    print("")
+
+# IMAGINE ONE PIXEL BUT THREE
+# LHC{IMAGINE ONE PIXEL BUT THREE}
 
 # Convert binary to bytes
 n = int(data, 2)
