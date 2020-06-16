@@ -129,7 +129,7 @@ checkBalance()          option 3: [3] Check Balance
 exit(0)                 option 4: [4] Exit
 ```
 
-Inspect the `deposit` and `withdraw` functions. Both features require a captcha to proceed. This is reflected in the code. This is the `withdraw` function with the `captcha` check:
+Inspect the `deposit` and `withdraw` functions. Both features require a captcha to proceed and this is reflected in the code. Here is the `withdraw` function with the `captcha` check:
 ```c
 void withdraw(void)
 {
@@ -184,7 +184,7 @@ $ python3 -c "print('1 ' + 'A'*1012)"
 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ...
 ```
 
-According to [GeeksforGeeks][2], `scanf` "is used to read the input until it encounters a whitespace, newline or End Of File(EOF)." When the `bank` program receives the payload of `1 AAAAAA...`, `scanf` will first scan the "1" and stop at the space. Then at the next `scanf` call, the function will scan the string of "A"s.
+According to [GeeksforGeeks][2], `scanf` "is used to read the input until it encounters a whitespace, newline or End Of File(EOF)." When the `bank` program receives the payload of `1 AAAAAA...`, `scanf` scans the "1" and stops at the space. Then at the next `scanf` call, the function scans the string of "A"s.
 
 Send the payload to the program:
 ```
@@ -379,6 +379,12 @@ Assembly                                        bank.c
 0x804924d:	call   0x8049050 <puts@plt>         puts("Correct!\n");
 0x8049266:	call   0x8049050 <puts@plt>         puts("Incorrect!\n");
 ```
+| Assembly               | bank.c  |
+| -----------------------------|-------|
+| `0x8049237:	call   0x8049090 <strncmp@plt>` | `strncmp(userCaptcha,(char *)&b3sT,8);`
+| `0x8049241:	jne    0x804925c` | `if (result != 0)`
+| `0x804924d:	call   0x8049050 <puts@plt>` | `puts("Correct!\n");`
+| `0x8049266:	call   0x8049050 <puts@plt>` | `puts("Incorrect!\n");`
 
 Set a breakpoint at the `leave` instruction:
 ```
