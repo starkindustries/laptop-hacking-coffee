@@ -37,7 +37,7 @@ Enlarge the interesting piece in the bottom left to get this:
 
 ![random_color_map2_zoom.png](random_color_map2_zoom.png)
 
-Here is another version of the same section:
+Here is another version of the same section, made with rgb overlays:
 
 ![rgb_zoom.png](rgb_zoom.png)
 
