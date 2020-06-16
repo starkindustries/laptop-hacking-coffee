@@ -3,7 +3,7 @@
 ## Points: 100
 You know this...
 
-[what.wav](./what.wav)
+[ [what.wav](./what.wav) ]
 
 ## Solution
 Install Audacity:

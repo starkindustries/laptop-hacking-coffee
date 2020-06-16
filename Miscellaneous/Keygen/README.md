@@ -10,7 +10,7 @@ Note: Be sure to encase in LHC{}
 
 Credit: ebeem#6523
 
-[keygen.elf](keygen.elf)
+[ [keygen.elf](keygen.elf) ]
 
 ## Solution
 Add run permissions to the keygen file. Run it:

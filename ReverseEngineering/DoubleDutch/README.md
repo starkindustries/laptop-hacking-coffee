@@ -10,7 +10,7 @@ Note: Be sure to encase it in LHC{}
 
 Credit: Benwick#5127
 
-[doubledutch](doubledutch)
+[ [doubledutch](doubledutch) ]
 
 ## Solution
 Run the program. Enter a password. Access denied:

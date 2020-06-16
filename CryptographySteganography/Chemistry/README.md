@@ -48,7 +48,7 @@ input:  ugtqvqpkp
 output: serotonin
 ```
 
-Format as flag:
+Format as flag and submit:
 ```
 LHC{serotonin}
 ```

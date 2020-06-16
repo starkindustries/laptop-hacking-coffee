@@ -9,7 +9,7 @@ Note: remember to encase in LHC{}
 
 Credit: Delta#6862
 
-[Love_You_Baby.png][1]
+[ [Love_You_Baby.png][1] ]
 
 ## Solution
 The image contains shapes and alphanumeric characters. Why the shapes though? What if the shapes themselves also provided a clue to the message? What if the number of sides mean something?
@@ -35,7 +35,7 @@ input:  6c 30 76 33 2d 79 30 75
 output: l0v3-y0u
 ```
 
-Format as flag:
+Format as flag and submit:
 ```
 LHC{l0v3-y0u}
 ```

@@ -5,6 +5,8 @@
 ## Challenge
 Can you figure out how n00b cheated?
 
+[ [n00b.pcap](n00b.pcap) ]
+
 ## Solution
 Open up the pcap file in Wireshark. Filter for **irc** packets. Follow the conversation between n00b and RedWedge.
 
@@ -48,6 +50,7 @@ Try to make contact with BananaHammock19 on dal.net:
 ```
 /msg BananaHammock19 joey
 ```
+
 In the chat:
 ```
 [19:56] <n00b42> joey
@@ -61,34 +64,32 @@ In the chat:
 [19:58] == End of WHOIS
 ```
 
-```
-lh qD n6 vV u9 k4 X
-xt cP z6 hH g9 w4 J
-
-lhcPn6hHu9w4X
-
-lh q^ n= vV u@ k; X
-^Z cP `/ hH g2 ]- J
-
-lhcPnhHu@]-X
-
-eajWg6oOn9d4Q
-```
-placeholder
+Identify this hash with `hash-identifier`:
 ```
 $ hash-identifier
- Not Found.
+   #########################################################################
+   #     __  __                     __           ______    _____           #
+   #    /\ \/\ \                   /\ \         /\__  _\  /\  _ `\         #
+   #    \ \ \_\ \     __      ____ \ \ \___     \/_/\ \/  \ \ \/\ \        #
+   #     \ \  _  \  /'__`\   / ,__\ \ \  _ `\      \ \ \   \ \ \ \ \       #
+   #      \ \ \ \ \/\ \_\ \_/\__, `\ \ \ \ \ \      \_\ \__ \ \ \_\ \      #
+   #       \ \_\ \_\ \___ \_\/\____/  \ \_\ \_\     /\_____\ \ \____/      #
+   #        \/_/\/_/\/__/\/_/\/___/    \/_/\/_/     \/_____/  \/___/  v1.2 #
+   #                                                             By Zion3R #
+   #                                                    www.Blackploit.com #
+   #                                                   Root@Blackploit.com #
+   #########################################################################
 --------------------------------------------------
  HASH: eajWg6oOn9d4Q
 
 Possible Hashs:
 [+] DES(Unix)
 --------------------------------------------------
- HASH: 
-
 ```
 
-Use John the Ripper
+The hash is potentially a DES ([Data Encryption Standard](https://en.wikipedia.org/wiki/Data_Encryption_Standard)) hash. 
+
+Try cracking it using John the Ripper. Place the hash in a text file (bribery-hash.txt) and run John with the [rockyou](http://downloads.skullsecurity.org/passwords/rockyou.txt.bz2) wordlist from the [LHC rules](https://ctf.laptophackingcoffee.org/rules).
 ```
 $ sudo john bribery-hash.txt --wordlist=rockyou.txt
 Using default input encoding: UTF-8
@@ -100,7 +101,7 @@ Use the "--show" option to display all of the cracked passwords reliably
 Session completed
 ```
 
-Format as flag:
+Hash successfully cracked. Format as flag and submit:
 ```
 LHC{18@Fart}
 ```

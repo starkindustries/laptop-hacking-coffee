@@ -11,7 +11,7 @@ This is the message he keeps posting:
 
 (Be sure to use the LHC{flag} syntax!)
 
-[LEET.jpg][1]
+[ [LEET.jpg][1] ]
 
 ## Solution
 Google **AlbertHoltzmanIII**. Find his twitter:

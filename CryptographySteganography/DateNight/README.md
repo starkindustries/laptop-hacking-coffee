@@ -10,7 +10,7 @@ Note: Encase the flag in LHC{}
 
 Credit: Delta#6862
 
-[1394.png][1]
+[ [1394.png][1] ]
 
 ## Solution
 Turns out the is a red herring.
@@ -35,7 +35,7 @@ $ strings 1394.png
 ...
 A New Hope
 ```
-Place the movie in flag format:
+Place the movie in flag format and submit:
 ```
 LHC{A New Hope}
 ```

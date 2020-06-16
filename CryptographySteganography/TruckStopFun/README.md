@@ -7,7 +7,7 @@ While driving from Hawaii to New Mexico Susan really had to go to the restroom. 
 
 Credit: TLSHack
 
-[truck_stop_fun][1]
+[ [truck_stop_fun][1] ]
 
 ## Solution
 Dump all strings:
@@ -23,7 +23,7 @@ input:  N5VSA43PEBRGC43JMNQWY3DZEBUW2IDNN5XGW6I=
 output: ok so basically im monky
 ```
 
-Format as flag:
+Format as flag and submit:
 ```
 LHC{ok so basically im monky}
 ```

@@ -4,8 +4,8 @@
 | Challenge Name               | Points  | Status  |
 | -----------------------------|:-------:|:-------:|
 | [Skid Test](./Web/SkidTest) | 20 | Solved |
-| [Fuzzy URL](./Web/FuzzyURL) | 20 | Solved |
-| [Meow](./Web/Meow) | 90 | Solved |
+| [Fuzzy URL](./Web/FuzzyURL) | 25 | Solved |
+| [Meow](./Web/Meow) | 90 | Solved: Write-up in progress |
 | [CUPP](./Web/CUPP) | 100 | Solved |
 
 ## Miscellaneous
@@ -41,7 +41,7 @@
 | Challenge Name               | Points  | Status  |
 | -----------------------------|:-------:|:-------:|
 | [Chamber of Secrets](./Pwn/ChamberOfSecrets) | 75 | Solved |
-| [Best Bank](./Pwn/BestBank) | 250 | Solved |
+| [Best Bank](./Pwn/BestBank) | 250 | Solved: Write-up in progress |
 
 ## Forensics & OSINT
 

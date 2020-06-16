@@ -9,7 +9,7 @@ Note: Be sure to encase the flag in LHC{}
 
 Credit: Delta#6862
 
-[flight_plan.txt](./flight_plan.txt)
+[ [flight_plan.txt](./flight_plan.txt) ]
 
 ## Solution
 After searching for "flight plan" on LHC discord, this clue popped up:
@@ -48,7 +48,7 @@ Connect the airports for June to form "U":
 
 ![june][5]
 
-String these letters together and format as flag:
+String these letters together, format as flag, and submit:
 ```
 LHC{peru}
 ```

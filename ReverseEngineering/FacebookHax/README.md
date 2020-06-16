@@ -8,7 +8,7 @@ The CTO at MySpace recently heard that the Facebook app developers had nested th
 
 Credit: TLSHack
 
-[com.facebook.mlite.apk](./com.facebook.mlite.apk)
+[ [com.facebook.mlite.apk](./com.facebook.mlite.apk) ]
 
 ## Solution
 
@@ -32,7 +32,7 @@ $ strings ./resources.arsc | grep AIzaSyBWJZPw7wVi
 ''AIzaSyBWJZPw7wVi-NQEViQV9ZnadO-xbX4S8o0
 ```
 
-Found it. Enter this in flag format:
+Found it. Enter this in flag format and submit:
 ```
 LHC{AIzaSyBWJZPw7wVi-NQEViQV9ZnadO-xbX4S8o0}
 ```

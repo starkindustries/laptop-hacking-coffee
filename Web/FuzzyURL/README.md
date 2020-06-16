@@ -6,6 +6,8 @@
 
 I can't remember what directory I left my password in, can you find it?
 
+[ [Start](http://challenges.laptophackingcoffee.org:8888/?) ]
+
 ## Solution
 
 The challenge title hints at fuzzing the URL. Try **dirb** against the site:

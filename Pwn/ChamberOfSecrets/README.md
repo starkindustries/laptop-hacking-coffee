@@ -10,7 +10,7 @@ Enter the secret and get the flag!
 
 Credit: Tux#1576
 
-[secret][1]
+[ [secret][1] ]
 
 ## Solution
 

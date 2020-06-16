@@ -12,7 +12,7 @@ Note: The contents of the file is LHC{secret_string}
 
 Credit: Delta#6862
 
-[what_hash_v3.png](what_hash_v3.png)
+[ [what_hash_v3.png](what_hash_v3.png) ]
 
 ## Solution
 The script's `fixer` function hashes the input using MD5. Then the constants `y` and `w` are pre-pended and appended to the hashed variable `x` respectively. 
@@ -44,7 +44,7 @@ input:  nuclear
 output: 3dc183cf4b0ea0778a1819994ad6cf25
 ```
 
-Format as flag:
+Format as flag and submit:
 ```
 LHC{nuclear}
 ```

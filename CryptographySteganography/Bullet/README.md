@@ -48,7 +48,7 @@ was succesfully reversed into the string:
 waytooeasy
 ```
 
-Format as flag:
+Format as flag and submit:
 ```
 LHC{waytooeasy}
 ```

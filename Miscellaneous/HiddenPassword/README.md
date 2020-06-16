@@ -8,9 +8,9 @@ My mortal enemy has hidden his password in a random string. I have the original 
 
 Note: Be sure to encase it in LHC{}
 
-[key.txt](key.txt) 
+[ [key.txt](key.txt) ]
 
-[secret.txt](secret.txt)
+[ [secret.txt](secret.txt) ]
 
 ## Solution
 Open up [text-compare](https://text-compare.com/), paste the key into the left side and paste the secret into the right side. Write down the extra characters:
@@ -18,7 +18,7 @@ Open up [text-compare](https://text-compare.com/), paste the key into the left s
 d1fFeRenT!
 ```
 
-Format as flag:
+Format as flag and submit:
 ```
 LHC{d1fFeRenT!}
 ```

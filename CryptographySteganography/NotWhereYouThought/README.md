@@ -7,7 +7,7 @@ I stumbled upon this file recently, its confusing the heck out of me. Can you he
 
 Credits: programme-zero#4997
 
-[SecureBackup.exe](./SecureBackup.exe)
+[ [SecureBackup.exe](./SecureBackup.exe) ]
 
 ## Solution
 This one is interesting. Start with **binwalk**:

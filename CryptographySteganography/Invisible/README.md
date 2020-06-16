@@ -8,7 +8,7 @@ Help, I can’t find anything useful here! My friend gave me a hint, he says the
 
 Credits: Azotos#6989
 
-[tvph.txt][1]
+[ [tvph.txt][1] ]
 
 ## Solution
 
