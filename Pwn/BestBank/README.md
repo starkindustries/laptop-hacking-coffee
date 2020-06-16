@@ -380,7 +380,7 @@ Assembly                                        bank.c
 0x8049266:	call   0x8049050 <puts@plt>         puts("Incorrect!\n");
 ```
 | Assembly               | bank.c  |
-| -----------------------------|-------|
+| :----------------------------- | :------- |
 | `0x8049237:	call   0x8049090 <strncmp@plt>` | `strncmp(userCaptcha,(char *)&b3sT,8);`
 | `0x8049241:	jne    0x804925c` | `if (result != 0)`
 | `0x804924d:	call   0x8049050 <puts@plt>` | `puts("Correct!\n");`
