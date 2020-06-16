@@ -12,7 +12,7 @@ Hint 1: If you're stuck, just look a little closer.
 
 Hint 2: [This should give you the right idea](https://www.imdb.com/title/tt2120120/)
 
-[story_vocabulary.png][1]
+[ [story_vocabulary.png][1] ]
 
 ## Solution
 
@@ -37,7 +37,11 @@ Enlarge the interesting piece in the bottom left to get this:
 
 ![random_color_map2_zoom.png](random_color_map2_zoom.png)
 
-Now this is interesting. It's not braille. The cipher seems separated into five sections. Maybe five letters? Or five words?
+Here is another version of the same section:
+
+![rgb_zoom.png](rgb_zoom.png)
+
+Now this is interesting. The cipher seems to be separated into five sections. Maybe five letters? Or five words?
 
 Take the original image and crop out just the interesting portion in order to get this tiny image:
 
@@ -264,7 +268,10 @@ If the data of plane 1 determines which pixels turn on and off, the result is th
 
 ![flag.png](flag.png)
 
-[How to read the RGB value of a given pixel in Python?][2]
+Submit the flag:
+```
+LHC{IMAGINE ONE PIXEL BUT THREE}
+```
 
 ## Failed Attempts
 
@@ -316,9 +323,12 @@ K3#\
 K_~u3m
 ```
 
+Is it braille? It's not braille. 
+
 ## Resources
 * [Stegsolve Repository][2]
 * [Stegsolve Jar File][3]
+* [How to read the RGB value of a given pixel in Python?][4]
 * https://github.com/ctfs/write-ups-2014/tree/master/plaid-ctf-2014/doge-stege
 * https://georgeom.net/StegOnline/checklist
 * https://georgeom.net/StegOnline/extract
