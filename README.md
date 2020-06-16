@@ -33,7 +33,7 @@
 | [Awww](./CryptographySteganography/Awww) | 125 | Solved |
 | [Air Traffic](./CryptographySteganography/AirTraffic) | 150 | Solved |
 | [Invisible](./CryptographySteganography/Invisible) | 175 | Solved |
-| [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 | In Progress |
+| [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 | Solved |
 | [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 | In Progress |
 
 ## Pwn
