@@ -184,7 +184,7 @@ $ python3 -c "print('1 ' + 'A'*1012)"
 1 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ...
 ```
 
-According to [GeeksforGeeks][2], `scanf` "is used to read the input until it encounters a whitespace, newline or End Of File (EOF)." When the `bank` program receives the payload of `1 AAAAAA...`, `scanf` scans the "1" and stops at the space. Then at the next `scanf` call, the function scans the string of "A"s.
+According to [GeeksforGeeks][2], `scanf` "is used to read the input until it encounters a space, newline, or End Of File (EOF)." When the `bank` program receives the payload of `1 AAAAAA...`, `scanf` scans the "1" and stops at the space. Then at the next `scanf` call, the function scans the string of "A"s.
 
 Send the payload to the program:
 ```
@@ -335,7 +335,7 @@ At this point `scanf` has already scanned in the payload of "A"s, which are visi
 0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
 ```
 
-Now that `scanf` has completed, the program returned back to the `captcha` function. Examine about 30 instructions starting from the current instruction.
+Now that `scanf` has completed, the program returned to the `captcha` function. Examine about 30 instructions starting from the current instruction.
 ```
 (gdb) x/30i $eip
 => 0x8049221:	add    esp,0x10
@@ -491,7 +491,7 @@ At `0x8049277`, the `ret` instruction is about to pop and return to address `0x4
 
 At this point, it's tempting to write shell code to the stack and jump to the shell code address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
 
-First find a good address to return to. Open up gdb. Run the program again without a payload (use `set args` to clear any arguments). Run until breakpoint at `0x08049276` then take a look at the stack pointer:
+First, find a good address to return to. Open up gdb. Run the program again without a payload (use `set args` to clear any arguments). Run until breakpoint at `0x08049276` then take a look at the stack pointer:
 ```
 (gdb) set args
 (gdb) run
@@ -616,7 +616,7 @@ Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab accordi
 
 The `scanf` function stops scanning at byte `0x0b` likely because `0x0b` is considered as a terminating character. Therefore, this byte must be removed from the payload. And the question becomes: how to deliver the same payload without byte `0x0b`?
 
-First examine what that byte is actually doing. Take a look at the shellcode again:
+First, examine what that byte is doing. Take a look at the shellcode again:
 ```
 8048073: b0 0b      mov    $0xb,%al
 ```
@@ -866,13 +866,13 @@ A process's proc map can also be viewed in gdb with this command:
 (gdb) info proc map
 ```
 
-Run the bank program a few more times and print its proc map again. Notice that the `f7d93000` addresses always change due to ASLR. However, `08048000` to `0804d000` always stay the same. Additionally, section `0804c000-0804d000` has `rwx` permissions (read, write, and execute). This section is particularly vulnerable to exploitation.
+Run the bank program a few more times and print its proc map again. Notice that the `f7d93000` addresses always change due to ASLR. However, addresses from `08048000` to `0804d000` always stay the same. Additionally, section `0804c000-0804d000` has `rwx` permissions (read, write, and execute). This section is particularly vulnerable to exploitation.
 
 ### Exploit Version 3: Jump to Scanf
 
 The payload cannot reliably jump back to the stack due to ASLR. Therefore, it has to write to and jump back to a reliable location in memory, like section `0804c000-0804d000`. 
 
-Now that section `0804c000-0804d000` is exposed as vulnerable, just need to write the payload to that location and jump to it. However, the payload writes to the stack first due to the program itself. But what if first took control of the program with one payload and then jumped back to scanf with a second craft exploit that will write to the desired vulnerable section. This can work..
+Now that section `0804c000-0804d000` is exposed as vulnerable, just need to write the payload to that location and jump to it. However, the payload writes to the stack first due to the program itself. But what if first took control of the program with one payload and then jumped back to scanf with a second craft exploit that will write to the desired vulnerable section. This can work.
 
 Will need to drill down into how scanf works. From Ghidra's decompiled C code [bank.c](bank.c), 
 ```c
@@ -1027,7 +1027,8 @@ Submit the flag:
 LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
 ```
 
-## Notes to Self
+## Note to Self
+
 Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020. It took nine (9) days of debugging, learning, and grinding to solve. This is my first buffer-overflow payload-to-shell exploit and I have learned a ton. This challenge involved an incredible amount of trial-and-error. However, the solution write-up skips *most* of these trials and instead focuses on the path to the goal. While the solution is important, it is the journey that makes it memorable and worthwhile. Happy hacking. 
 
 ## Resources
