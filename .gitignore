@@ -3,3 +3,4 @@ cupp
 .gdb_history
 Pwn/BestBank/payload
 *.o
+*.out
