@@ -487,7 +487,7 @@ Breakpoint 2, 0x08049276 in ?? ()
 
 At `0x8049277`, the `ret` instruction is about to pop and return to address `0x43434343`, which is "CCCC" in hex. "CCCC" can be changed to any address desired. Therefore, the payload successfully manipulated the instruction pointer at the `0x8049277:ret` instruction!
 
-### Exploit Version 1: Execute a Shell
+### Exploit Version 1: Deploy Payload
 
 At this point, it's tempting to write shell code to the stack and jump to the shell code address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
 
@@ -732,6 +732,9 @@ mov al,0xff     0xb0 0xff
 sub al,0xf4     0x2c 0xf4
 ```
 
+Exploit Version 2: Execute Shell
+
+Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new exploit script to include these changes. 
 
 
 # TODO
