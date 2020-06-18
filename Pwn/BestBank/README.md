@@ -592,7 +592,7 @@ Examine the stack and make sure everything else is in place. The return address 
             return address is correct
 ```
 
-What about the payload? Compare the intended payload with the stack contents. It is easier to read the stack in bytes instead of words due to [endianness](https://en.wikipedia.org/wiki/Endianness). Use this command to display in byte sizes: `x/48bx $esp+4`. Here is the output with comparison to the payload:
+What about the payload? Compare the intended payload with the stack contents. It is easier to read the stack in bytes instead of words due to [endianness][24]. Use this command to display in byte sizes: `x/48bx $esp+4`. Here is the output with comparison to the payload:
 ```
 (gdb) x/48bx $esp+4
 intended payload address
@@ -1076,6 +1076,7 @@ Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020.
 * [GeeksforGeeks: How to compile 32-bit program on 64-bit in C and C++][21]
 * [StackOverflow: Substitutes for x86 assembly 'call' instruction?][22]
 * [StackOverflow: Disable ASLR in gdb][23]
+* [Wikipedia: Endianness][24]
 
 [1]:https://en.wikipedia.org/wiki/Scanf_format_string#Vulnerabilities
 [2]:https://www.geeksforgeeks.org/difference-between-scanf-and-gets-in-c/
@@ -1100,3 +1101,4 @@ Started this challenge on 05 June 2020. Completed the challenge on 13 June 2020.
 [21]:https://www.geeksforgeeks.org/compile-32-bit-program-64-bit-gcc-c-c/
 [22]:https://stackoverflow.com/questions/7060970/substitutes-for-x86-assembly-call-instruction
 [23]:https://stackoverflow.com/a/43944979/2179970
+[24]:https://en.wikipedia.org/wiki/Endianness
