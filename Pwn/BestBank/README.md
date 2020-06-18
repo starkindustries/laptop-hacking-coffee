@@ -776,7 +776,7 @@ Continuing.
 process 25937 is executing new program: /bin/dash
 ```
 
-The program successfully execute the shell program `/bin/dash`. Awesome! 
+The program successfully executes the shell program `/bin/dash`. Awesome! 
 
 Now run it without gdb. The program segfaults:
 ```
@@ -786,7 +786,7 @@ Welcome to the Best Bank!
 Segmentation fault (core dumped)
 ```
 
-To figure out why, run the program again in one terminal:
+Run the program again in one terminal:
 ```
 $ ./bank
 ```
@@ -808,7 +808,7 @@ Enter input as normal in the bank's terminal window until the breakpoint hits in
 esp            0xffa73dd0	0xffa73dd0
 ```
 
-This `0xffa73dd0` address is far off from the predicted `0xffffdd6c` address used in the payload. Why is it so different? This difference is due to [Address Space Layout Randomization (ASLR)][9]. Therefore, the stack address used in gdb cannot be used on a live program. Furthermore, gdb has ASLR turned off by default for easier debugging. To turn ASLR on, use this command:
+This `0xffa73dd0` address is far off from the predicted `0xffffdd6c` address used in the payload. Why is it so different? This difference is due to [Address Space Layout Randomization (ASLR)][9]. Therefore, the stack address used in gdb cannot be used in a live program. Furthermore, gdb has ASLR turned off by default for easier debugging. To turn ASLR on, use this command:
 ```
 (gdb) set disable-randomization off
 ```
@@ -820,7 +820,7 @@ To turn ASLR back off (default setting), use this:
 
 ### Checksec and Proc Maps
 
-Before attempting to defeat ASLR, ensure to explore all other options. Check the program's security settings with `checksec`:
+Before attempting to defeat ASLR, first explore other options. Check the program's security settings with `checksec`:
 ```
 $ checksec bank
 [*] '/lhc/Pwn/BestBank/bank'
@@ -832,7 +832,7 @@ $ checksec bank
     RWX:      Has RWX segments
 ```
 
-This gives a lot of good information. `NX` in `NX disabled` stands for non-execute. With this disabled, there are areas of the program that can be overwritten and executed, which is great for hacking purposes. `PIE` stands for Position Independent Executable. If enabled, PIE further randomizes the memory location that the program executes on. Having this disabled is also great. There is a lot more information about these codes in this article: [Binary Executable Security][10].
+This gives a lot of good information. `NX` in `NX disabled` stands for non-execute. With this disabled, there are areas of the program that can be overwritten and executed, which is great for exploitation. `PIE` stands for Position Independent Executable. If enabled, PIE further randomizes the memory location that the program executes in. Having this disabled is also great. There is a lot more information about these codes in this article: [Binary Executable Security][10].
 
 If `NX` is disabled for some areas, which areas of memory are executable? Find out with the program's **proc map**. Run bank in a new terminal. In another terminal, print the proc map like this:
 ```
