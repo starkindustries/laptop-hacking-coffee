@@ -487,13 +487,13 @@ Breakpoint 2, 0x08049276 in ?? ()
 0x08049277 in ?? ()
 ```
 
-At `0x8049277`, the `ret` instruction is about to pop and return to address `0x43434343`, which is "CCCC" in hex from the payload. Therefore, the payload successfully manipulated the instruction pointer at the `0x8049277:ret` instruction!
+At `0x8049277`, the `ret` instruction is about to pop and return to address `0x43434343`, which is "CCCC" in hex from the payload. Therefore, the payload successfully manipulated the instruction pointer at the `0x8049277: ret` instruction!
 
 ### 5. Create Shellcode Payload (Exploit Version 1)
 
-At this point, it's tempting to write shell code to the stack and jump to the shell code address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
+At this point, it's tempting to write shellcode to the stack and jump to the shellcode address per the instructions in [LiveOverflow's video][4]. Give this approach a try. 
 
-First, find a good address to return to. Open up gdb. Run the program again without a payload (use `set args` to clear any arguments). Run until the breakpoint at `0x08049276` then take a look at the stack pointer:
+First, find a good address to return to. Open up gdb. Run the program again without a payload (use `set args` to clear any arguments). Run until the breakpoint at `0x08049276` then look at the stack pointer:
 ```
 (gdb) set args
 (gdb) run
@@ -521,7 +521,7 @@ The payload starts at `esp` + 4. Use this as the return address for the payload:
 eip = 0xffffdd6c + 4
 ```
 
-Use the shell code LiveOverflow suggested by [Shell Storm: Linux x86 execve("/bin/sh")][5]:
+Use the shellcode LiveOverflow suggested by [Shell Storm: Linux x86 execve("/bin/sh")][5]:
 ```
 /*
 Title:  Linux x86 execve("/bin/sh") - 28 bytes
@@ -736,7 +736,7 @@ sub al,0xf4     0x2c 0xf4
 
 ### 7. Execute a Shell (Exploit Version 2)
 
-Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new [exploit script](exploit2.py) to take advantage of this new information. Remove the `b0 0b` bytes from the original shell code and add in the `mov` and `sub` opcodes:
+Now with the `scanf` byte `0xb` circumvention tactics in hand, create a new [exploit script](exploit2.py) to take advantage of this new information. Remove the `b0 0b` bytes from the original shellcode and add in the `mov` and `sub` opcodes:
 ```python
 import struct
 
@@ -867,7 +867,7 @@ Run the bank program a few more times and print its proc map again. Notice that 
 
 The payload cannot reliably jump back to the stack due to ASLR. Therefore, the payload has to write to and jump back to a non-moving and writable location in memory, like section `0804c000-0804d000`. Can the payload manipulate `scanf` to write to any location like `0804c000`? Yes, it can.
 
-First, drill down and understand how `scanf` works. Take another look at the `captcha` function from Ghidra's decompiled code:
+First, understand how `scanf` works. Take another look at the `captcha` function from Ghidra's decompiled code:
 ```c
 uint captcha(void) {}
     ...
@@ -877,7 +877,7 @@ uint captcha(void) {}
 }
 ```
 
-Notice the `printf` statement occurs right before the `scanf` function call. This is a good place to set a breakpoint in order to see the instructions leading up to the `scanf` call.
+Notice the `printf` statement occurs right before the `scanf` function call. This is a good place to set a breakpoint to see the instructions leading up to the `scanf` call.
 
 
 Set a breakpoint at the `printf` function. Step passed the captcha and stop at the instruction just after `printf` completes (`0x8049208: add esp,0x10`):
