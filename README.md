@@ -63,4 +63,4 @@
 | [Not True Encryption](./ReverseEngineering/NotTrueEncryption) | 75 | In Progress |
 | [Better Than Before](./ReverseEngineering/BetterThanBefore) | 100 | Not Started |
 | [Revenge](./ReverseEngineering/Revenge) | 130 | Not Started |
-| [Firmware Modification](./ReverseEngineering/FirmwareModification) | 150 | Not Started |
+| [Firmware Modification](./ReverseEngineering/FirmwareModification) | 150 | Solved; Write-up in progress |
