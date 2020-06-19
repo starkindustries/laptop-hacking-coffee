@@ -11,3 +11,8 @@ Note: Be sure to encase in LHC{}
 [ [RansomwareDecrypter.exe](RansomwareDecrypter.exe) ]
 
 ## Solution
+
+
+https://schlafwandler.github.io/posts/mrmcdctf2019-slicer/
+Note the name here: the ‘DAT_’ reflects that the variable is located in the data segment, not on the stack. DAT_00403568 therefore is a global variable, not a local one.
+
