@@ -41,7 +41,7 @@
 | Challenge Name               | Points  | Status  |
 | -----------------------------|:-------:|:-------:|
 | [Chamber of Secrets](./Pwn/ChamberOfSecrets) | 75 | Solved |
-| [Best Bank](./Pwn/BestBank) | 250 | Solved: Write-up in progress |
+| [Best Bank](./Pwn/BestBank) | 250 | Solved |
 
 ## Forensics & OSINT
 
@@ -60,3 +60,7 @@
 | [Strcmp](./ReverseEngineering/Strcmp) | 30 | Solved |
 | [FacebookHax](./ReverseEngineering/FacebookHax) | 50 | Solved |
 | [Double Dutch](./ReverseEngineering/DoubleDutch) | 60 | Solved |
+| [Not True Encryption](./ReverseEngineering/NotTrueEncryption) | 75 | In Progress |
+| [Better Than Before](./ReverseEngineering/BetterThanBefore) | 100 | Not Started |
+| [Revenge](./ReverseEngineering/Revenge) | 130 | Not Started |
+| [Firmware Modification](./ReverseEngineering/FirmwareModification) | 150 | Not Started |
