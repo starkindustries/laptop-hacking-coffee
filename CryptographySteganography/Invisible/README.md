@@ -1,6 +1,6 @@
 # Invisible
 
-## Points: 75
+## Points: 175
 
 ## Challenge
 
