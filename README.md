@@ -16,7 +16,7 @@
 | [Keygen](./Miscellaneous/Keygen) | 70 | Solved |
 | [Math is Hard](./Miscellaneous/MathIsHard) | 75 | Solved |
 | [Password?](./Miscellaneous/Password) | 80 | Solved |
-| [Super Simple](./Miscellaneous/SuperSimple) | 350 | In Progress |
+| [Super Simple](./Miscellaneous/SuperSimple) | 350 | Solved: Write-up in progress |
 
 ## Cryptography/Steganography
 
