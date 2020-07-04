@@ -1,6 +1,6 @@
 # Poison
 
-## Web: 350 points
+## Web: 350 Points
 
 ## Challenge
 

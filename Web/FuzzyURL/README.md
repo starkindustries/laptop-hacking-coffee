@@ -1,6 +1,6 @@
 # Fuzzy URL
 
-## Web: 25 points
+## Web: 25 Points
 
 ## Challenge
 

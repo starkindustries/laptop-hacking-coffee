@@ -1,6 +1,6 @@
 # Meow
 
-## Web: 90 points
+## Web: 90 Points
 
 ## Challenge
 We're using Tomcat to manage our challenges.laptophackingcoffee.org server. Is that bad?

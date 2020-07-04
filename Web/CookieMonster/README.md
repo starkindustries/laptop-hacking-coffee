@@ -1,6 +1,6 @@
 # Cookie Monster
 
-## Web: 200 points
+## Web: 200 Points
 
 ## Challenge
 

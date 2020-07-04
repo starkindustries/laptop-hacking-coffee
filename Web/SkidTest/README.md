@@ -1,6 +1,6 @@
 # Skid Test
 
-## Web: 20 points
+## Web: 20 Points
 
 ## Challenge
 

@@ -1,6 +1,6 @@
 # CUPP
 
-## Web: 100 points
+## Web: 100 Points
 
 ## Challenge
 
