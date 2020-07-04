@@ -1,6 +1,6 @@
 # Scam
 
-## Points: 75
+## Forensics & OSINT: 75 Points
 
 ## Challenge
 This guy tricked me into giving him my friend's Snapchat password. Help!

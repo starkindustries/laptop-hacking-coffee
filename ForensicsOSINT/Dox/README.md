@@ -1,6 +1,6 @@
 # Dox
 
-## Points: 150
+## Forensics & OSINT: 150 Points
 
 ## Challenge
 Some dude keeps spamming our Discord. Can you dox him for us?

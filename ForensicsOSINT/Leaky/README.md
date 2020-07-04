@@ -1,6 +1,6 @@
 # Leaky
 
-## Points: 75
+## Forensics & OSINT: 75 Points
 
 ## Challenge
 I've lost access to my Snapchat account and I can't remember the password. I think the email is DarkBlade5@yahoo.com. Please find my password and submit it as LHC{password-here}. Thanks!

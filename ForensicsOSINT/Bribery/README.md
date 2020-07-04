@@ -1,6 +1,6 @@
 # Bribery
 
-## Points: 180
+## Forensics & OSINT: 180 Points
 
 ## Challenge
 Can you figure out how n00b cheated?
