@@ -1,6 +1,6 @@
 # Best Bank
 
-## Pwn: 250 points
+## Pwn: 250 Points
 
 ## Challenge
 

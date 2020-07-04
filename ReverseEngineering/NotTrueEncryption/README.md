@@ -1,6 +1,6 @@
 # Not True Encryption
 
-## Reverse Engineering: 75 points
+## Reverse Engineering: 75 Points
 
 ## Challenge
 

@@ -1,6 +1,6 @@
 # Facebook Hax
 
-## Points: 50
+## Reverse Engineering: 50 Points
 
 ## Challenge
 

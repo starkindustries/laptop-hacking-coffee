@@ -1,6 +1,6 @@
 # Strcmp
 
-## Points: 30
+## Reverse Engineering: 30 Points
 
 ## Challenge
 A kid I go to school with bet me I couldn't hack his program. I'm a skid who just asks others to do stuff for me since I'm incapable of learning myself, so can you hack it for me plz.

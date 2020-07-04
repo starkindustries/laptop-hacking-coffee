@@ -1,6 +1,6 @@
 # Firmware Modification
 
-## Reverse Engineering: 150 points
+## Reverse Engineering: 150 Points
 
 ## Challenge
 

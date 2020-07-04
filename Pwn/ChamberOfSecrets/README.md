@@ -1,6 +1,6 @@
 # Chamber of Secrets
 
-## Pwn: 75 points
+## Pwn: 75 Points
 
 ## Challenge
 

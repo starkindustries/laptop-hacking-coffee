@@ -1,6 +1,6 @@
 # Double Dutch
 
-## Reverse Engineering: 60 points
+## Reverse Engineering: 60 Points
 
 ## Challenge
 
