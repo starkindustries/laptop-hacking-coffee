@@ -69,5 +69,5 @@
 | [Double Dutch](./ReverseEngineering/DoubleDutch) | 60 | Solved |
 | [Not True Encryption](./ReverseEngineering/NotTrueEncryption) | 75 | In Progress |
 | [Better Than Before](./ReverseEngineering/BetterThanBefore) | 100 | Not Started |
-| [Revenge](./ReverseEngineering/Revenge) | 130 | Not Started |
-| [Firmware Modification](./ReverseEngineering/FirmwareModification) | 150 | Solved; Write-up in progress |
+| [Revenge](./ReverseEngineering/Revenge) | 130 | Solved: Write-up in progress |
+| [Firmware Modification](./ReverseEngineering/FirmwareModification) | 150 | Solved: Write-up in progress |
