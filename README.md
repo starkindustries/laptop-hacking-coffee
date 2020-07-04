@@ -7,6 +7,12 @@
 | [Fuzzy URL](./Web/FuzzyURL) | 25 | Solved |
 | [Meow](./Web/Meow) | 90 | Solved: Write-up in progress |
 | [CUPP](./Web/CUPP) | 100 | Solved |
+| [Cookie Monster](./Web/CookieMonster) | 200 | Solved: Write-up in progress |
+| [Poison](./Web/Poison) | 350 | Not started |
+| [Baby Mama Trauma](./Web/BabyMamaTrauma) | 450 | Not started |
+| [Unsanitary](./Web/Unsanitary) | 500 | Not started |
+| [404 Not Found](./Web/404NotFound) | 505 | Not started |
+| [The Heist](./Web/TheHeist) | 700 | Not started |
 
 ## Miscellaneous
 
