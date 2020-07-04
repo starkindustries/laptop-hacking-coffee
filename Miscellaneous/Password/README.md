@@ -1,6 +1,6 @@
 # Password?
 
-## Miscellaneous: 80 points
+## Miscellaneous: 80 Points
 
 ## Challenge
 

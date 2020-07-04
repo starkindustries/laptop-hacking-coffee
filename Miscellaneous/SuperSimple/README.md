@@ -1,6 +1,6 @@
 # Super Simple
 
-## Miscellaneous: 350 points
+## Miscellaneous: 350 Points
 
 ## Challenge
 I just bought this Cisco 1941 router off some guy in the park, but the data plate has been scraped off. Want to check with Cisco to make sure it's not stolen. Can you help me recover the serial number?

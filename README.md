@@ -18,6 +18,7 @@
 
 | Challenge Name               | Points  | Status  |
 | -----------------------------|:-------:|:-------:|
+| [What Service?](./Miscellaneous/WhatService) | 10 | Solved |
 | [Hidden Password](./Miscellaneous/HiddenPassword) | 30 | Solved |
 | [Keygen](./Miscellaneous/Keygen) | 70 | Solved |
 | [Math is Hard](./Miscellaneous/MathIsHard) | 75 | Solved |

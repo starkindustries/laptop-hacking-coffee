@@ -1,6 +1,6 @@
 # Math is Hard
 
-## Miscellaneous: 75 points
+## Miscellaneous: 75 Points
 
 ## Challenge
 

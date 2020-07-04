@@ -1,6 +1,6 @@
 # Hidden Password
 
-## Miscellaneous: 30 points
+## Miscellaneous: 30 Points
 
 ## Challenge
 

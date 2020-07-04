@@ -1,6 +1,6 @@
 # Keygen
 
-## Miscellaneous: 70 points
+## Miscellaneous: 70 Points
 
 ## Challenge
 
