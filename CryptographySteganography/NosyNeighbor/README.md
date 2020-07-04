@@ -1,6 +1,6 @@
 # Nosy Neighbor
 
-## Points: 300
+## Cryptography/Steganography: 300 Points
 
 ## Challenge
 I think my friend might be involved with the feds! I intercepted a message to him:

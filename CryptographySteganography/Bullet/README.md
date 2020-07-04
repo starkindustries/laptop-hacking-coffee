@@ -1,6 +1,6 @@
 # Bullet
 
-## Points: 25
+## Cryptography/Steganography: 25 Points
 
 ## Challenge
 I won a bullet at the recent cybercowboy conference and it had this etched into it '9c0a81866acce1bde0ef5520a2155054' on it... can you tell me what it means?

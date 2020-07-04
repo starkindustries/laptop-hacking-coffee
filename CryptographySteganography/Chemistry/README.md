@@ -1,6 +1,6 @@
 # Chemistry
 
-## Points: 75
+## Cryptography/Steganography: 75 Points
 
 ## Challenge
 My GF got bored in chemistry class and sent me this:

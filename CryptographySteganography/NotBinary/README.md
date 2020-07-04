@@ -1,6 +1,6 @@
 # Not Binary
 
-## Points: 30
+## Cryptography/Steganography: 30 Points
 
 ## Challenge
 11 11111 010 000 0 101 11111 100 00011 00 000 101 11111 11111 0100

@@ -1,6 +1,6 @@
 # Air Traffic
 
-## Points: 150
+## Cryptography/Steganography: 150 Points
 
 ## Challenge
 One of our agents went dark and we believe is trying to communicate with us. We received a message from an unknown sender that just appears to be someone's flight plans. Can you help us figure out where he is?

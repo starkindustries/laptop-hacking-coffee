@@ -1,6 +1,6 @@
 # Rotten Encryption
 
-## Points: 75
+## Cryptography/Steganography: 75 Points
 
 ## Challenge
 

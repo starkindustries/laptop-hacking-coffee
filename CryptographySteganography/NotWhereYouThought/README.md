@@ -1,6 +1,6 @@
 # Not Where You Thought
 
-## Points: 75
+## Cryptography/Steganography: 75 Points
 
 ## Challenge
 I stumbled upon this file recently, its confusing the heck out of me. Can you help me out?

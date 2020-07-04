@@ -1,6 +1,6 @@
 # What?
 
-## Points: 100
+## Cryptography/Steganography: 100 Points
 You know this...
 
 [ [what.wav](./what.wav) ]

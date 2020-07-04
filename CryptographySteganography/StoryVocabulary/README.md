@@ -1,6 +1,6 @@
 # Story Vocabulary
 
-## Points: 250
+## Cryptography/Steganography: 250 Points
 
 ## Challenge
 

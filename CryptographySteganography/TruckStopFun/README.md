@@ -1,6 +1,6 @@
 # Truck Stop Fun
 
-## Points: 75
+## Cryptography/Steganography: 75 Points
 
 ## Challenge
 While driving from Hawaii to New Mexico Susan really had to go to the restroom. Upon entering her favorite truck stop bathroom she’s sees the following. What is this bizarre sticker? There has to be some sort of clue in this photo?

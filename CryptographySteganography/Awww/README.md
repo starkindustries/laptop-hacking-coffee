@@ -1,6 +1,6 @@
 # Awww
 
-## Points: 125
+## Cryptography/Steganography: 125 Points
 
 ## Challenge
 My 1337 GF sent me this and said she there's a lovely message in it for me, can you help me understand it?

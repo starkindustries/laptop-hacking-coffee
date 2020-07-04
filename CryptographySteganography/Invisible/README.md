@@ -1,6 +1,6 @@
 # Invisible
 
-## Points: 175
+## Cryptography/Steganography: 175 Points
 
 ## Challenge
 

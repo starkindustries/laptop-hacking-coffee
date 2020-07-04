@@ -1,6 +1,6 @@
 # Date Night
 
-## Points: 100
+## Cryptography/Steganography: 100 Points
 
 ## Challenge
 
