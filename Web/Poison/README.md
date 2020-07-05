@@ -12,6 +12,8 @@ Note: The server resets to default every 30 minutes. All progress will be lost
 
 ## Solution
 
+https://cyware.com/news/understanding-the-types-of-poisoning-attacks-ed39c024
+
 ```
 $ nmap -sC -sV challenges.laptophackingcoffee.org -p 666
 Starting Nmap 7.80 ( https://nmap.org ) at 2020-07-04 09:04 MDT
