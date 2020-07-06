@@ -8,11 +8,11 @@
 | [Meow](./Web/Meow) | 90 | Solved |
 | [CUPP](./Web/CUPP) | 100 | Solved |
 | [Cookie Monster](./Web/CookieMonster) | 200 | Solved: Write-up in progress |
-| [Poison](./Web/Poison) | 350 | Not started |
-| [Baby Mama Trauma](./Web/BabyMamaTrauma) | 450 | Not started |
-| [Unsanitary](./Web/Unsanitary) | 500 | Not started |
-| [404 Not Found](./Web/404NotFound) | 505 | Not started |
-| [The Heist](./Web/TheHeist) | 700 | Not started |
+| [Poison](./Web/Poison) | 350 | Unsolved |
+| [Baby Mama Trauma](./Web/BabyMamaTrauma) | 450 | Unsolved |
+| [Unsanitary](./Web/Unsanitary) | 500 | Unsolved |
+| [404 Not Found](./Web/404NotFound) | 505 | Unsolved |
+| [The Heist](./Web/TheHeist) | 700 | Unsolved |
 
 ## Miscellaneous
 
@@ -41,7 +41,7 @@
 | [Air Traffic](./CryptographySteganography/AirTraffic) | 150 | Solved |
 | [Invisible](./CryptographySteganography/Invisible) | 175 | Solved |
 | [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 | Solved |
-| [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 | In Progress |
+| [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 | Unsolved |
 
 ## Pwn
 
@@ -56,7 +56,7 @@
 | -----------------------------|:-------:|:-------:|
 | [Leaky](./ForensicsOSINT/Leaky) | 75 | Solved |
 | [Scam](./ForensicsOSINT/Scam) | 75 | Solved |
-| [Lost Passwords](./ForensicsOSINT/LostPasswords) | 100 | In Progress |
+| [Lost Passwords](./ForensicsOSINT/LostPasswords) | 100 | Unsolved |
 | [Dox](./ForensicsOSINT/Dox) | 150 | Solved |
 | [Bribery](./ForensicsOSINT/Bribery) | 180 | Solved |
 
@@ -67,7 +67,7 @@
 | [Strcmp](./ReverseEngineering/Strcmp) | 30 | Solved |
 | [FacebookHax](./ReverseEngineering/FacebookHax) | 50 | Solved |
 | [Double Dutch](./ReverseEngineering/DoubleDutch) | 60 | Solved |
-| [Not True Encryption](./ReverseEngineering/NotTrueEncryption) | 75 | In Progress |
-| [Better Than Before](./ReverseEngineering/BetterThanBefore) | 100 | Not Started |
+| [Not True Encryption](./ReverseEngineering/NotTrueEncryption) | 75 | Unsolved |
+| [Better Than Before](./ReverseEngineering/BetterThanBefore) | 100 | Unsolved |
 | [Revenge](./ReverseEngineering/Revenge) | 130 | Solved: Write-up in progress |
 | [Firmware Modification](./ReverseEngineering/FirmwareModification) | 150 | Solved: Write-up in progress |
