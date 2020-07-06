@@ -160,10 +160,11 @@ The **Commands with JSP** page will appear. Type any command in the text field a
 
 ![screenshot4.png](screenshot4.png)
 
-Cat the **flag.txt** file and grab the flag:
+Cat the **flag.txt** file: 
 
 ![screenshot5.png](screenshot5.png)
 
+Grab the flag:
 ```
 LHC{T0Mc@t_D3F@ult}
 ```
