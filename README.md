@@ -5,7 +5,7 @@
 | -----------------------------|:-------:|:-------:|
 | [Skid Test](./Web/SkidTest) | 20 | Solved |
 | [Fuzzy URL](./Web/FuzzyURL) | 25 | Solved |
-| [Meow](./Web/Meow) | 90 | Solved: Write-up in progress |
+| [Meow](./Web/Meow) | 90 | Solved |
 | [CUPP](./Web/CUPP) | 100 | Solved |
 | [Cookie Monster](./Web/CookieMonster) | 200 | Solved: Write-up in progress |
 | [Poison](./Web/Poison) | 350 | Not started |

