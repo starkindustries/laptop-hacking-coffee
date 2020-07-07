@@ -168,14 +168,12 @@ pow(x, y[, z])
 
 ### Implement RSA in Python
 
-Piece together all the equations above into a python [script](script.py). Seek further guidance from StackOverflow: [Modular multiplicative inverse function in Python
+Piece together all the equations above into a python [script](script.py). To implement the mod-inverse function, refer to this StackOverflow answer: [Modular multiplicative inverse function in Python
 ][6].
 
 ### Abstract Syntax Notation One (ASN.1)
 
-The RSA public and private keys are encoded in ASN.1 format. It is necessary to understand [ASN.1][7] in order to complete the challenge. 
-
-ASN.1 decoders are available online, such as the tools from [phpseclib][8] and [lapo.it][9]. Decode the public key with one of these tools. This is the result from [lapo.it][9]:
+The RSA public and private keys are encoded in [ASN.1][7] format. ASN.1 decoders are available online, such as the tools from [phpseclib][8] and [lapo.it][9]. Decode the public key with one of these tools. This is the result from [lapo.it][9]:
 ```
 ASN.1 JavaScript decoder
 SEQUENCE (2 elem)
@@ -243,7 +241,7 @@ p = 00D81AAEEAA38 ...
 q = 00FA41E961682 ...
 ```
 
-Recall that the attacker's key was created with the same modulus as the neighbor's. Verify that the two are in fact they are the same:
+Recall that the attacker's key was created with the same modulus as the neighbor's. Verify that the two are the same:
 ```
 neighbor's public key modulus:   d341b29a107d28622bc446cc6245b22a15c606 ...
 attacker's private key modulus:  D341B29A107D28622BC446CC6245B22A15C606 ...
