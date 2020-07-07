@@ -168,11 +168,14 @@ pow(x, y[, z])
 
 ### Implement RSA in Python
 
-Piece together all the equations above into a python [script](script.py).
+Piece together all the equations above into a python [script](script.py). Seek further guidance from StackOverflow: [Modular multiplicative inverse function in Python
+][6].
 
-# Dividing Line
+### Abstract Syntax Notation One (ASN.1)
 
-https://lapo.it/asn1js/
+The RSA public and private keys are encoded in ASN.1 format. It is necessary to understand [ASN.1][7] in order to complete the challenge. 
+
+ASN.1 decoders are available online, such as the tools from [phpseclib][8] and [lapo.it][9]. Decode the public key with one of these tools. This is the result from [lapo.it][9]:
 ```
 ASN.1 JavaScript decoder
 SEQUENCE (2 elem)
@@ -185,9 +188,7 @@ SEQUENCE (2 elem)
       INTEGER 65537
 ```
 
-Convert public key to hex with cyber chef. Then setup the bytes in the same fashion as the stack exchange answer
-
-https://crypto.stackexchange.com/a/35105/55622
+This decoded text contains some vague information. However, this [StackOverflow answer][10] clearly explains each component of the decoded data. Convert the public key base64 string into hex using [CyberChef](https://gchq.github.io/CyberChef/). Then breakdown each component as explained in the StackOverflow answer. This is the result:
 ```
 30 82 02 22             ; 30=SEQUENCE
 |  30 0d                ; 30=SEQUENCE
@@ -212,11 +213,17 @@ https://crypto.stackexchange.com/a/35105/55622
 |  |  |  c5 93 dc b1 b8 22 b2 d9 c2 a9 8c 9e 39 cb 6d 19 a8 78 8f 6f 28 02 1a 1d 23 19 58 51 48 1c 53 04 9a fa a8 92 b5 2d 6b 09 cf fb 3a f9 e7 
 |  |  |  d6 fa a6 e9 49 99 4e a7 b6 6a 28 44 de cf 92 33 0b 
 |  |  02 03             ; 02=INTEGER (0x03 = 3 bytes) - the exponent
-|  |  |  01 00 01       ; 0x01001 is hex for 65537
+|  |  |  01 00 01       ; 0x010001 is hex for 65537
 ```
 
-https://crypto.stackexchange.com/questions/21102/what-is-the-ssl-private-key-file-format
-http://phpseclib.sourceforge.net/x509/asn1parse.php
+From this breakdown, components **n** (modulus) and **e** are found:
+```
+n = d3 41 b2 9a 10 7d ... 92 33 0b (a really large number)
+e = 01 00 01 (65537 in decimal)
+```
+
+Do the same for the private key and refer to this [StackOverflow answer][11] for a similar breakdown. These results are from [phpseclib][8]. The variables in parenthesis were added for reference.
+
 ```
     0:d=0  hl=4 l=2344 cons: SEQUENCE
     4:d=1  hl=2 l=   1 prim:  INTEGER            :00
@@ -227,34 +234,64 @@ http://phpseclib.sourceforge.net/x509/asn1parse.php
  1306:d=1  hl=4 l= 257 prim:  INTEGER (q)        :00FA41E961682A3F21C6F30BCFDEECC9BC8B0C0F6A2D2F5A1CCA991CA58EAB6853F2039EFF14A61A9D4EE15CD41CD7500EC1E25BD28015525E147F240FDDC7728A10069757A36CC267D35C0ADBDF74CF303A8E7E814421ADEE2CB827AC418BB595BC308C6304E818206785D53CD7592898FE4C8C62AF1BEDA8CE76466DB3186A8D61ACCEDE94170E200AFB57FBC2A64486D01618F206704C09BD31113A2CA8C139765896741F9868DCDACA0DAE21AA5908856736E51A774C705E32D5E0B675345E06583FB8D32C2BBB9D95AE44C31FBB6BC15ABC41F202F7F33402A740ECC7939487FEEFC723F334685D92582BE4E311E5B82D6803996509855455347D49B82D07
  1567:d=1  hl=4 l= 256 prim:  (d mod (p-1))      :6EED07ABA35EF599E4B1DF32D53494EB15C6835A45C0B8A1DD63FAF4490722B223A8EF1B1E6DCA394317BB9B1458E92912F09D40232DF0EB38FF2C3FFA461FD935E9B6102B2CBB4F5F06CB150E575E7029A5093113EBD8C08D62F0C05919B8318CF8DD0445482D97573AE8050F95A7B194B685EDB1901C291252E8259261DD7CF45F480926153AFC31599287F9104B22000D25629B332CAC9C560BB22C91A9E730324AEF4FD0F9545C31091535E2A2242DA0C3C7EE3AE6012358839BA8800B5BC3BDA3CDC0D63B8A971C109A687D66E92351C7BE6CD29350779BD4418030255BD7D82EE3FEC8C43814E55C84DC4D301FCE59D8C238A22D002B7BF9948993F215
  1827:d=1  hl=4 l= 257 prim:  (d mod (q-1))      :0089803C7B0000A47622687A62FE4EFF7EF4387BDED43E7FEFED30EF0E24749C991B476F53827F908ED1AB1746D9DA015CBBA73BC355B13E9A90F3BFCF444890F23D2263F92A609C37E5B42CBE0C69F9FA5884B5FD7752BFFCAD08ACBC836D531D13ECFE47A1AE44D10B9F6AAAFB4A619D5B8A4F7ADC287A8ECAAAD3CA594488911C4CF9A6390E6B2895CF89314FB868F3F0FF954A53338653F3A7224F6C8C7BF47DB02960BF4F5C1D8355D8A6B98735EC153D16F6C58878132EB94A16D3AD512C4F5CA70BFFE22388CB6BDB086E55342E3BAC9BD7EFA5BBE535BFE1DE242C3AA7E19793E39924AA0AFBD1B5F40F08B506DD20CE1F66E9AB4378A0C2BBA7DE1BAF
- 2088:d=1  hl=4 l= 256 prim:  (inv of q) mod p   :2926C152D608B4E7B0EF12C08E941F1EB0EBBCF0B0E6D8E2D59253B81F22CC42608A8FD2A80E0A1E215EDAF31E0847A9305F96E9F089B4C2273351E2F1DBDF7AE870DB8F5FA58A1552800A4580DFBF84C5FB7DAD3526CB14BD46FC638712224CC8525F348DC300A0DFD7ABF93A09F18753064F7E9C429A48949DD85EA8A08AA7F9D3E454321D1D40AF76E1301FE6EB4C3004AF556BFF99F05D6D7CBDFA5DDAB81E272A46E2F9942520CAD515574E3911F04761E396D5DFF711EA3A03B05D2682390EDC4E6E497A4DF07BBDDE483F13626AD7D1FAF80F755639BF6297D1B41CDA2549EE07BBFCC6CA2064347DA65007E755CEE15538861BCFCCE501C8138A8585
+ 2088:d=1  hl=4 l= 256 prim:  ((inv of q) mod p) :2926C152D608B4E7B0EF12C08E941F1EB0EBBCF0B0E6D8E2D59253B81F22CC42608A8FD2A80E0A1E215EDAF31E0847A9305F96E9F089B4C2273351E2F1DBDF7AE870DB8F5FA58A1552800A4580DFBF84C5FB7DAD3526CB14BD46FC638712224CC8525F348DC300A0DFD7ABF93A09F18753064F7E9C429A48949DD85EA8A08AA7F9D3E454321D1D40AF76E1301FE6EB4C3004AF556BFF99F05D6D7CBDFA5DDAB81E272A46E2F9942520CAD515574E3911F04761E396D5DFF711EA3A03B05D2682390EDC4E6E497A4DF07BBDDE483F13626AD7D1FAF80F755639BF6297D1B41CDA2549EE07BBFCC6CA2064347DA65007E755CEE15538861BCFCCE501C8138A8585
 ```
 
+This result provides the final pieces, **p** and **q**, to unlock the neighbor's message:
 ```
-$ openssl rsa -pubin -in public.key -text -noout
+p = 00D81AAEEAA38 ...
+q = 00FA41E961682 ...
 ```
 
+Recall that the attacker's key was created with the same modulus as the neighbor's. Verify that the two are in fact they are the same:
+```
+neighbor's public key modulus:   d341b29a107d28622bc446cc6245b22a15c606 ...
+attacker's private key modulus:  D341B29A107D28622BC446CC6245B22A15C606 ...
+```
+
+In order to create RSA keys, the algorithm requires: **p**, **q**, and **e**. Since the two keys were created with the same modulus, the **p** and **q** variables can be used to recreate the neighbor's private key. The exponent **e** was pulled from the neighbor's public key earlier. Plug these variables into the python script:
+
+```python
+p = "00D81AAEEAA38 ..."
+q = "00FA41E961682 ..."
+e = 65537
+_, d, _ = createKeys(int(p, 16), int(q, 16), e)
+```
+
+This will produce the neighbor's private key. Last step is to decrypt the neighbor's message:
+```python
+cipher = "8d66f329e9df55a5f0cf6007196f39dc87eea9c1bd ..."
+decrypted = decrypt(int(cipher, 16), d, int(n1, 16))
+print(f"\nDecrypted message: {decrypted}\n")
+```
+
+Grab the flag:
 ```
 LHC{conspiracy_debunked}
 ```
 
+## Resources
+
 * [CrypTool: RSA Step-By-Step][1]
 * [Wikipedia: RSA][2]
-
-
-* https://www.cryptool.org/en/cto-highlights/rsa-step-by-step
-* https://www.geeksforgeeks.org/how-to-solve-rsa-algorithm-problems/
-* https://crypto.stackexchange.com/questions/18031/how-to-find-modulus-from-a-rsa-public-key
-* https://lapo.it/asn1js/
-* https://www.youtube.com/watch?v=EHUgNLN8F1Y
-* https://www.geeksforgeeks.org/modular-exponentiation-python/
-* https://docs.python.org/2/library/functions.html
-* https://stackoverflow.com/questions/16310871/how-to-find-d-given-p-q-and-e-in-rsa
-* https://www.youtube.com/watch?v=fz1vxq5ts5I
-* https://stackoverflow.com/questions/4798654/modular-multiplicative-inverse-function-in-python
+* [Wikipedia: Modular Multiplicative Inverse][3]
+* [Wikipedia: Modular Exponentiation][4]
+* [YouTube: Modular Exponentiation][5]
+* [StackOverflow: Modular multiplicative inverse function in Python][6]
+* [Wikipedia: ASN.1][7]
+* [PHPSecLib: ASN.1 Parser][8]
+* [LapoIt: ASN.1 JavaScript decoder][9]
+* [StackExchange: How to find modulus from a RSA public key?][10]
+* [StackExchange: What is the SSL private key file format?][11]
 
 [1]:https://www.cryptool.org/en/cto-highlights/rsa-step-by-step
 [2]:https://en.wikipedia.org/wiki/RSA_(cryptosystem)
 [3]:https://en.wikipedia.org/wiki/Modular_multiplicative_inverse
 [4]:https://en.wikipedia.org/wiki/Modular_exponentiation
 [5]:https://www.youtube.com/watch?v=EHUgNLN8F1Y
+[6]:https://stackoverflow.com/questions/4798654/modular-multiplicative-inverse-function-in-python
+[7]:https://en.wikipedia.org/wiki/ASN.1
+[8]:http://phpseclib.sourceforge.net/x509/asn1parse.php
+[9]:https://lapo.it/asn1js/
+[10]:https://crypto.stackexchange.com/a/35105/55622
+[11]:https://crypto.stackexchange.com/a/21104/55622
