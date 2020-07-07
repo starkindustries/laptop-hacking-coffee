@@ -1,54 +1,6 @@
 #!/usr/bin/python3
 import math
 
-# https://www.geeksforgeeks.org/how-to-solve-rsa-algorithm-problems/
-# https://www.cryptool.org/en/cto-highlights/rsa-step-by-step
-
-#***************************
-# Prime factors
-#***************************
-# As a starting point for RSA choose two primes p and q.
-# 1st prime
-# p = 11 
-# 2nd prime
-# q = 13
-
-# For the algorithm to work, the two primes must be different.
-# Calculate n
-# n = p * q
-
-#***************************
-# Public key
-#***************************
-# The product 'n' is also called module in the RSA method. 
-# The public key consists of the module 'n' and an exponent 'e'.
-# e = 23
-
-#***************************
-# Secret key
-#***************************
-# RSA uses the Euler φ function of n to calculate the secret key. 
-# This is defined as: φ(n) = (p − 1) × (q − 1)
-# phi = (p - 1) * (q - 1)
-
-# It is important for RSA that the value of the φ function is coprime to e 
-# (the largest common divisor must be 1).
-# https://www.geeksforgeeks.org/gcd-in-python/
-
-# To determine the value of φ(n), it is not enough to know n. Only with the 
-# knowledge of p and q we can efficiently determine φ(n).
-# The secret key also consists of n and a d with the property that e × d is a 
-# multiple of φ(n) plus one.
-
-# Expressed in formulas, the following must apply:
-# e × d = 1 (mod φ(n))
-
-# In this case, the mod expression means equality with regard to a residual class. 
-# It is x = y (mod z) if and only if there is an integer a with x − y = z × a.
-
-# This d can always be determined (if e was chosen with the restriction described 
-# above)—for example with the extended Euclidean algorithm.
-
 # https://stackoverflow.com/questions/4798654/modular-multiplicative-inverse-function-in-python
 def egcd(a, b):
     if a == 0:
@@ -80,45 +32,14 @@ def createKeys(p, q, e):
     d = modinv(e, phi)    
     return n, d, e
 
-#***************************
-# Encryption 
-#***************************
-# Internally, this method works only with numbers, which are between 0 and n.
-# Encrypting a message m (number) with the public key (n, e) is calculated:
-# m' := m^e (mod n)
-
 def encrypt(message, e, n):
     if message > n:
         print(f"Error: message{{{message}}} > n{{{n}}}. Exiting..")
     # Modular Exponentiation
-    # pow(x, y[, z])
-    # Return x to the power y; if z is present, return x to the power y, modulo z 
     return pow(message, e, n)
-
-#***************************
-# Decryption
-#***************************
-# Decrypting with the private key (n, d) is done analogously with
-# m'' := m'^d (mod n).
-#
-# This is the same as: 
-# m'' = m^(e × d) (mod n).
-#
-# RSA now exploits the property that:
-# x^a = x^b (mod n)
-# if
-# a = b (mod φ(n))
-# 
-# As e and d were chosen appropriately, it is
-# m'' = m.
-# 
-# The order does not matter. You could also first raise a message with the private key, 
-# and then power up the result with the public key—this is what you use with RSA signatures.
 
 def decrypt(cipher, d, n):
     # Modular Exponentiation
-    # pow(x, y[, z])
-    # Return x to the power y; if z is present, return x to the power y, modulo z 
     return pow(cipher, d, n)
 
 if __name__ == "__main__":

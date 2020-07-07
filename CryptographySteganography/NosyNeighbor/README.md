@@ -84,6 +84,94 @@ Credits: IOException#6405
 
 ## Solution
 
+### Understand the RSA Algorithm
+
+The RSA explanations on [CrypTool][1] and [Wikipedia][2] are very insightful. The following is based on the explanation from CrypTool.
+
+**Prime Factors**
+
+Select two primes **p** and **q**:
+```
+p = 11
+q = 13
+```
+
+Calculate **n = p * q**:
+```
+n = p * q
+  = 11 * 13
+  = 143
+```
+
+**Public Key**
+
+Now select an exponent **e**, where **e** and **n** do not have a common divisor:
+```
+e = 23
+```
+
+The public key consists of module **n** and **e**.
+
+**Secret Key**
+
+RSA uses the Euler **φ** function of **n** to calculate the secret key. This is defined as:
+```
+φ(n) = (p - 1) * (q - 1)
+```
+
+Calculate **φ** with the two primes already selected:
+```
+φ(n) = (11 - 1) * (13 - 1)
+     = (10) * (12)
+     = 120
+```
+
+It is important for RSA that the value of the **φ** function is coprime to **e** (the largest common divisor must be 1).
+```
+gcd(e, φ(n)) = 1
+```
+
+The secret key also consists of **n** and a **d** with the property that **e * d** is a multiple of **φ(n)** plus one. Expressed in formulas, the following must apply:
+```
+e * d = 1 (mod φ(n))
+```
+Divide both sides by **e** to get:
+```
+d = 1/e (mod φ(n))
+  = e^-1(mod φ(n))
+```
+
+Therefore, **d** is the [modular multiplicative inverse][3] of **e** with respect to modulus **φ(n)**.
+
+**Encryption and Decryption**
+
+To encrypt a message **m**:
+```
+m' = m^e mod n
+```
+
+To decrypt:
+```
+m'' = m'^d mod n
+```
+
+Since **e** and **d** were chosen appropriately:
+```
+m'' = m
+```
+
+Values **e** and **d** can be arbitrarily large. In order to calculate such large exponents, RSA algorithms take advantage of [modular exponentiation][4]. This [YouTube video][5] by GVSUmath clearly explains the concept. The `pow` function in python implements it:
+```
+# Return x to the power y; if z is present, return x to the power y, modulo z 
+pow(x, y[, z])
+```
+
+### Implement RSA in Python
+
+Piece together all the equations above into a python [script](script.py).
+
+# Dividing Line
+
 https://lapo.it/asn1js/
 ```
 ASN.1 JavaScript decoder
@@ -150,14 +238,23 @@ $ openssl rsa -pubin -in public.key -text -noout
 LHC{conspiracy_debunked}
 ```
 
+* [CrypTool: RSA Step-By-Step][1]
+* [Wikipedia: RSA][2]
+
+
 * https://www.cryptool.org/en/cto-highlights/rsa-step-by-step
 * https://www.geeksforgeeks.org/how-to-solve-rsa-algorithm-problems/
 * https://crypto.stackexchange.com/questions/18031/how-to-find-modulus-from-a-rsa-public-key
 * https://lapo.it/asn1js/
-Modular Exponentiation
 * https://www.youtube.com/watch?v=EHUgNLN8F1Y
 * https://www.geeksforgeeks.org/modular-exponentiation-python/
 * https://docs.python.org/2/library/functions.html
 * https://stackoverflow.com/questions/16310871/how-to-find-d-given-p-q-and-e-in-rsa
 * https://www.youtube.com/watch?v=fz1vxq5ts5I
 * https://stackoverflow.com/questions/4798654/modular-multiplicative-inverse-function-in-python
+
+[1]:https://www.cryptool.org/en/cto-highlights/rsa-step-by-step
+[2]:https://en.wikipedia.org/wiki/RSA_(cryptosystem)
+[3]:https://en.wikipedia.org/wiki/Modular_multiplicative_inverse
+[4]:https://en.wikipedia.org/wiki/Modular_exponentiation
+[5]:https://www.youtube.com/watch?v=EHUgNLN8F1Y

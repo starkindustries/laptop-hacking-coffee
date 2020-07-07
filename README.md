@@ -41,7 +41,7 @@
 | [Air Traffic](./CryptographySteganography/AirTraffic) | 150 | Solved |
 | [Invisible](./CryptographySteganography/Invisible) | 175 | Solved |
 | [Story Vocabulary](./CryptographySteganography/StoryVocabulary) | 250 | Solved |
-| [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 | Unsolved |
+| [Nosy Neighbor](./CryptographySteganography/NosyNeighbor) | 300 | Solved |
 
 ## Pwn
 
