@@ -9,7 +9,7 @@
 | [CUPP](./Web/CUPP) | 100 | Solved |
 | [Cookie Monster](./Web/CookieMonster) | 200 | Solved: Write-up in progress |
 | [Poison](./Web/Poison) | 350 | Unsolved |
-| [Baby Mama Trauma](./Web/BabyMamaTrauma) | 450 | Unsolved |
+| [Baby Mama Trauma](./Web/BabyMamaTrauma) | 450 | Solved: Write-up in progress |
 | [Unsanitary](./Web/Unsanitary) | 500 | Unsolved |
 | [404 Not Found](./Web/404NotFound) | 505 | Unsolved |
 | [The Heist](./Web/TheHeist) | 700 | Unsolved |
