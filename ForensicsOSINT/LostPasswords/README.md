@@ -12,3 +12,14 @@ Credit: TLSHack
 https://en.wikipedia.org/wiki/Google_hacking
 https://exposingtheinvisible.org/guides/google-dorking/
 https://kit.exposingtheinvisible.org/en/how/google-dorking.html
+
+Things to try:
+1. site: narrow down to LHC url and IP address. 
+2. filetype: xlsx, xls, csv, ods, pdf, 
+
+Attempts:
+```
+filetype:csv twitter
+filetype:xls twitter
+filetype:ods twitter
+```

