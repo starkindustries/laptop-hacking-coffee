@@ -379,7 +379,7 @@ https://md5decrypt.net/en/Sha512/#answer
 
 gr8whiteshark
 ```
-
+https://www.youtube.com/watch?v=htTEfokaKsM
 
 Resources 
 
