@@ -10,7 +10,7 @@
 | [Cookie Monster](./Web/CookieMonster) | 200 | Solved: Write-up in progress |
 | [Poison](./Web/Poison) | 350 | Unsolved |
 | [Baby Mama Trauma](./Web/BabyMamaTrauma) | 450 | Solved: Write-up in progress |
-| [Unsanitary](./Web/Unsanitary) | 500 | Unsolved |
+| [Unsanitary](./Web/Unsanitary) | 500 | Solved: Write-up in progress |
 | [404 Not Found](./Web/404NotFound) | 505 | Unsolved |
 | [The Heist](./Web/TheHeist) | 700 | Unsolved |
 
