@@ -12,6 +12,7 @@ Credit: TLSHack
 https://en.wikipedia.org/wiki/Google_hacking
 https://exposingtheinvisible.org/guides/google-dorking/
 https://kit.exposingtheinvisible.org/en/how/google-dorking.html
+https://www.exploit-db.com/google-hacking-database
 
 Things to try:
 1. site: narrow down to LHC url and IP address. 
@@ -22,4 +23,17 @@ Attempts:
 filetype:csv twitter
 filetype:xls twitter
 filetype:ods twitter
+filetype:xlsx twitter
+allintext:larry susan
+allintext:larry susan twitter
+intitle:"index of"
+intitle:"index of" passwords
+```
+
+https://heybaby.network/
+https://cybersecurity.wtf/passwords/credentials.txt
+
+```
+admin:416e69eeac071fd732910d746a91423c
+operator:2de5145528daf46ae3d872f40add0783
 ```
