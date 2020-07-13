@@ -21,17 +21,28 @@ Things to try:
 Attempts:
 ```
 filetype:csv twitter
+filetype:csv passwords
 filetype:xls twitter
+filetype:xls passwords
 filetype:ods twitter
+filetype:ods passwords
 filetype:xlsx twitter
+filetype:xlsx passwords
+allintext:susan larry
+allintext:susan larry company
+allintext:susan larry twitter
 allintext:larry susan
+allintext:larry susan company
 allintext:larry susan twitter
 intitle:"index of"
 intitle:"index of" passwords
+intitle:"index of" passwords susan
+intitle:"index of" passwords larry
+intitle:"index of" passwords twitter
 ```
 
-https://heybaby.network/
 https://cybersecurity.wtf/passwords/credentials.txt
+https://wikileaks.org/sony/docs/bonus/1/Password/
 
 ```
 admin:416e69eeac071fd732910d746a91423c
