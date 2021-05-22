@@ -130,3 +130,58 @@ $ cat test.gif.php
 GIF89a����,
            ;<?phpinfo();?>
 ```
+
+
+Before uploading to LHC
+```
+z@z-pc:~/Documents/playgrounds/LaptopHackingCoffee/Web/Unsanitary$ hexdump -C test3.php
+00000000  47 49 46 38 39 61 1e 00  1e 00 80 00 00 ff ff ff  |GIF89a..........|
+00000010  ff ff ff 21 fe 11 43 72  65 61 74 65 64 20 77 69  |...!..Created wi|
+00000020  74 68 20 47 49 4d 50 00  2c 00 00 00 00 1e 00 1e  |th GIMP.,.......|
+00000030  00 00 02 1c 84 8f a9 cb  ed 0f a3 9c b4 da 8b b3  |................|
+00000040  de bc fb 0f 86 e2 48 96  e6 89 a6 ea ca b6 6b 01  |......H.......k.|
+00000050  00 3b   
+```
+
+After downloading from LHC:
+http://challenges.laptophackingcoffee.org:6464/images/test3.php
+```
+z@z-pc:~/Documents/playgrounds/LaptopHackingCoffee/Web/Unsanitary$ hexdump -C test3.php.1 
+00000000  47 49 46 38 37 61 1e 00  1e 00 80 00 00 ff ff ff  |GIF87a..........|
+00000010  ff ff ff 2c 00 00 00 00  1e 00 1e 00 00 02 1c 84  |...,............|
+00000020  8f a9 cb ed 0f a3 9c b4  da 8b b3 de bc fb 0f 86  |................|
+00000030  e2 48 96 e6 89 a6 ea ca  b6 6b 01 00 3b           |.H.......k..;|
+0000003d
+```
+The website strips the comment and converts the file from version 89a to 87a. However, if there is no comment then the website does not convert the file.
+
+I think the website is also checking the image size:
+
+https://www.php.net/manual/en/function.getimagesize.php
+
+A modified version of test5.gif. It includes a `<?` in the file.
+```
+z@z-pc:~/Documents/playgrounds/LaptopHackingCoffee/Web/Unsanitary$ hexdump -C test5.gif.php
+00000000  47 49 46 38 39 61 08 00  08 00 a1 01 3c 3f 00 00  |GIF89a......<?..|
+00000010  ff ff ff ff ff ff ff ff  ff 21 f9 04 01 0a 00 02  |.........!......|
+00000020  00 2c 00 00 00 00 08 00  08 00 00 02 0c 44 8c 71  |.,...........D.q|
+00000030  8b 99 cc dc 82 8d 2a 09  0a 00 3b 0a              |......*...;.|
+0000003c
+```
+
+Web removed the invalid `<?` characters and some of `0xff` bytes.
+```
+z@z-pc:~/Documents/playgrounds/LaptopHackingCoffee/Web/Unsanitary$ hexdump -C test5.gif.php.1 
+00000000  47 49 46 38 39 61 08 00  08 00 80 00 00 3f 00 00  |GIF89a.......?..|
+00000010  ff ff ff 21 f9 04 01 00  00 02 00 2c 00 00 00 00  |...!.......,....|
+00000020  08 00 08 00 00 02 0c 44  8c 71 8b 99 cc dc 82 8d  |.......D.q......|
+00000030  2a 09 0a 00 3b                                    |*...;|
+00000035
+```
+
+https://resources.infosecinstitute.com/null-byte-injection-php/#gref
+
+from itsqrank in LHC channel:
+```
+Can anyone help point me in the right direction on Unsanitary? I've been able to upload PHP files, however, it strips my PHP out when I make it with gifsicle. So I was researching why it would do that and I found another write up where a guy was having the same issue, he had a sample gif and it executes code fine. He wrote a python script to compare files to find out to fit his code in. Is that really the best way to accomplish this one? I don't want to learn Python right at this moment lol.
+```
